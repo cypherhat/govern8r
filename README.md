@@ -7,11 +7,15 @@ This is the repo for the govern8r client and server.
 Install python3.5
 
 Install virtualenv for both client and server:
-'''
+```
 virtualenv -p /Library/Frameworks/Python.framework/Versions/3.5/bin/python3 govern8rClient
 virtualenv -p /Library/Frameworks/Python.framework/Versions/3.5/bin/python3 govern8rService
-in directory govern8rService:
+```
 
+## Setup pacakges for services
+
+in directory govern8rService:
+```
 	source bin/activate
 	sudo pip install flask
 	sudo pip install pybitid
