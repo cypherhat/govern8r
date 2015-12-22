@@ -1,3 +1,13 @@
+# govern8r
+
+This is the repo for the govern8r client and server.
+
+## Environment setup
+
+Install python3.5
+
+Install virtualenv for both client and server:
+'''
 virtualenv -p /Library/Frameworks/Python.framework/Versions/3.5/bin/python3 govern8rClient
 virtualenv -p /Library/Frameworks/Python.framework/Versions/3.5/bin/python3 govern8rService
 in directory govern8rService:
