@@ -47,6 +47,7 @@ sudo python ./setup.py install
 Now you can:
 ```
 	sudo pip install boto3
+```	
 
 For the template to start from...
 ```
