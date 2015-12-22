@@ -53,3 +53,14 @@ For the template to start from...
 ```
 	git clone https://github.com/LaurentMT/pybitid_demo.git
 ```
+
+## Setup packages for client
+
+
+in directory govern8rClient:
+```
+	source bin/activate
+	sudo pip install python-bitcoinlib
+	sudo pip install requests
+```
+
