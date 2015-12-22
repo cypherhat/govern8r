@@ -62,5 +62,18 @@ in directory govern8rClient:
 	source bin/activate
 	sudo pip install python-bitcoinlib
 	sudo pip install requests
+	sudo pip install certifi
+
+```
+
+'ve had issues installing a few things due to SSL errors. When I installed pyopenssl, I had such an error. The failure was on the pycparser package. So, my resolution is to clone the repo and install manually.
+```
+	git clone https://github.com/eliben/pycparser.git
+```
+	
+Change to the pycparser directory and:
+```
+	sudo python ./setup.py install
+	sudo pip install pyopenssl
 ```
 
