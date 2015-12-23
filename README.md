@@ -14,11 +14,6 @@ virtualenv -p <path-to-python-2.7.11> govern8rService
 
 ## Setup packages for services
 
-Let's use AWS's dynamoDB since it provisions so easily on AWS. Here are the links:
-```
-http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.DynamoDBLocal.html#Tools.DynamoDBLocal.DownloadingAndRunning
-http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.zip
-```
 
 In directory govern8rService:
 ```
@@ -60,6 +55,27 @@ For the template to start from...
 ```
 	git clone https://github.com/LaurentMT/pybitid_demo.git
 ```
+
+## AWS setup
+
+Since we are running this stuff in AWS, we should use AWS's dynamoDB since it provisions so easily on AWS. Here are the links:
+```
+http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.DynamoDBLocal.html#Tools.DynamoDBLocal.DownloadingAndRunning
+http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.zip
+```
+
+We also have to install the aws client, to set up the credentials (contact me for these.)
+
+```
+	sudo pip install awscli
+```
+
+Before you can connect to the database, you need to configure the credentials using:
+
+```
+aws configure
+```
+
 
 ## Setup packages for client
 
