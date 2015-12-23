@@ -4,11 +4,11 @@ This is the repo for the govern8r client and server.
 
 ## Environment setup
 
-Install python3.5
+Install python3.5. Unfortunately, for right now we also need python 2.7.11
 
-Install virtualenv for both client and server:
+Install virtualenv for both client and server. Python2 for client, and python3 for the server:
 ```
-virtualenv -p /Library/Frameworks/Python.framework/Versions/3.5/bin/python3 govern8rClient
+virtualenv -p /Library/Frameworks/Python.framework/Versions/3.7/bin/python govern8rClient
 virtualenv -p /Library/Frameworks/Python.framework/Versions/3.5/bin/python3 govern8rService
 ```
 

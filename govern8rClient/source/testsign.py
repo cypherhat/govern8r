@@ -3,7 +3,7 @@ from bitcoin.signmessage import BitcoinMessage, VerifyMessage, SignMessage
 
 key = CBitcoinSecret("L4vB5fomsK8L95wQ7GFzvErYGht49JsCPJyJMHpB4xGM6xgi2jvG")
 address = P2PKHBitcoinAddress.from_pubkey(key.pub)  # "1F26pNMrywyZJdr22jErtKcjF8R3Ttt55G"
-message = "bitid://localhost:5000/callback?x=8215ed8005bddc3d&u=1"
+message = "bitid://localhost:5000/callback?x=e20464eb9587ff7a&u=1"
 
 message = BitcoinMessage(message)
 
