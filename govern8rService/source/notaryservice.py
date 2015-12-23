@@ -90,6 +90,33 @@ def login():
     return render_template('login.html', params_tpl=params_tpl)
 
 
+@app.route("/login2", methods=["GET"])
+@nocache
+def login2():
+    '''
+    This function initializes the authentication process
+    It builds a challenge which is sent to the client
+    '''
+    # Initializes a new session id and stores it in the session cookie
+    # If user was authenticated, it will be similar to a log out
+    session["sid"]  = str(uuid.uuid4())
+    session["uid"] = None
+    # Creates a new nonce associated to this session
+    nonce = Nonce(session["sid"])
+    # Stores the nonce in database
+    nonce_db_service.create_nonce(nonce)
+    # Gets the callback uri
+    callback_uri = get_callback_uri()
+    # Builds the challenge (bitid uri)
+    bitid_uri = bitid.build_uri(callback_uri, nonce.nid)
+    # Gets the qrcode uri
+    qrcode = bitid.qrcode(bitid_uri)
+    # Renders the login page
+    params_tpl = {"callback_uri": callback_uri, "bitid_uri": bitid_uri, "qrcode": qrcode}
+    return render_template('login.html', params_tpl=params_tpl)
+
+
+
 @app.route("/callback", methods=["POST"])
 @nocache
 def callback():
@@ -167,6 +194,7 @@ def auth():
     This function checks if a challenge associated to a given address has been validated
     '''
     # Checks that session id is set
+
     if not session["sid"]:
         return jsonify(auth = 0)
     # Gets the nonce associated to the session id
@@ -230,7 +258,8 @@ def get_callback_uri():
     scheme = parsed.scheme
     netloc = parsed.netloc
     path = "/callback"
-    return urlunparse((scheme, netloc, path, "", "", ""))
+    url = urlunparse((scheme, netloc, path, "", "", ""))
+    return url
 
 
 if __name__ == "__main__":

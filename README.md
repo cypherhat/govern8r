@@ -14,13 +14,19 @@ virtualenv -p <path-to-python-2.7.11> govern8rService
 
 ## Setup packages for services
 
-in directory govern8rService:
+Let's use AWS's dynamoDB since it provisions so easily on AWS. Here are the links:
+```
+http://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Tools.DynamoDBLocal.html#Tools.DynamoDBLocal.DownloadingAndRunning
+http://dynamodb-local.s3-website-us-west-2.amazonaws.com/dynamodb_local_latest.zip
+```
+
+In directory govern8rService:
 ```
 	source bin/activate
 	sudo pip install flask
+	sudo pip install flask-api
 	sudo pip install pybitid
 	sudo pip install blockcypher
-	sudo pip install pymongo
 	sudo pip install certifi
 ```
 
@@ -47,6 +53,7 @@ sudo python ./setup.py install
 Now you can:
 ```
 	sudo pip install boto3
+	sudo pip install pyopenssl
 ```	
 
 For the template to start from...
@@ -66,7 +73,7 @@ in directory govern8rClient:
 
 ```
 
-'ve had issues installing a few things due to SSL errors. When I installed pyopenssl, I had such an error. The failure was on the pycparser package. So, my resolution is to clone the repo and install manually.
+I've had issues installing a few things due to SSL errors. When I installed pyopenssl, I had such an error. The failure was on the pycparser package. So, my resolution is to clone the repo and install manually.
 ```
 	git clone https://github.com/eliben/pycparser.git
 ```

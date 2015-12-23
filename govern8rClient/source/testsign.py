@@ -1,9 +1,10 @@
 from bitcoin.wallet import CBitcoinSecret, P2PKHBitcoinAddress
 from bitcoin.signmessage import BitcoinMessage, VerifyMessage, SignMessage
+import requests
 
 key = CBitcoinSecret("L4vB5fomsK8L95wQ7GFzvErYGht49JsCPJyJMHpB4xGM6xgi2jvG")
 address = P2PKHBitcoinAddress.from_pubkey(key.pub)  # "1F26pNMrywyZJdr22jErtKcjF8R3Ttt55G"
-message = "bitid://localhost:5000/callback?x=e20464eb9587ff7a&u=1"
+message = "bitid://localhost:5000/callback?x=30f56bc022dde976&u=1"
 
 message = BitcoinMessage(message)
 
@@ -17,3 +18,6 @@ print("\nVerified: %s" % VerifyMessage(address, message, signature))
 
 print("\nTo verify using bitcoin core;")
 print("`bitcoin-cli verifymessage %s \"%s\" \"%s\"`" % (address, signature.decode('ascii'), message))
+
+r = requests.get("http://localhost:5000/")
+print(r.content)
