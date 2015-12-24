@@ -1,5 +1,7 @@
+
 from bitcoin.wallet import CBitcoinSecret, P2PKHBitcoinAddress
 from bitcoin.signmessage import BitcoinMessage, VerifyMessage, SignMessage
+
 import requests
 
 key = CBitcoinSecret("L4vB5fomsK8L95wQ7GFzvErYGht49JsCPJyJMHpB4xGM6xgi2jvG")
