@@ -13,14 +13,13 @@ Response:
 	uri: "bitid://..." //the bitid authentication URI
 }
 
-RESOURCE: /govern8r/api/v1/challenge/<email> (PUT)
+RESOURCE: /govern8r/api/v1/challenge/<address> (PUT)
 
 Request:
 { 
 	uri: "bitid://...", //the bitid authentication URI
-	signature: "" 	// the above uri signed by the private key associated with the address
-					// associated with the <email>. Authentication will fail if the user hasn't 
-					// registered.
+	signature: "" 	// the above uri signed by the private key associated with <address>. 
+					// Authentication will fail if the user hasn't registered.
 }
 
 Response Header: 
@@ -43,7 +42,7 @@ Response:
 { 
 }
 
-RESOURCE: /govern8r/api/v1/account/<email> (GET)
+RESOURCE: /govern8r/api/v1/account/<address> (GET)
 
 Request Header:
 {
