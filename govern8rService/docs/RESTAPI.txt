@@ -56,3 +56,73 @@ Response:
 	date_created: "" // the date the user was created
 }
 
+RESOURCE: /govern8r/api/v1/notarization/<document_hash> (PUT)
+
+Request Header:
+{
+	cookie -> session: "" // the session id returned from a successful authentication
+}
+
+Request:
+{
+	metadata: 
+	{
+		title: "",
+		creator: "",
+		subject: "",
+		description: "",
+		publisher: "",
+		contributor: "",
+		date: "",
+		type: "",
+		format: "",
+		identifier: "",
+		source: "",
+		language: "",
+		relation: "",
+		coverage: "",
+		rights: ""
+	}
+}
+
+Response: 
+{ 
+	tx_hash: "" // the blockchain transaction
+}
+
+RESOURCE: /govern8r/api/v1/notarization/<document_hash>/status (GET)
+
+Request Header:
+{
+	cookie -> session: "" // the session id returned from a successful authentication
+}
+
+Response:
+{
+	fees: int,
+	confidence: real,
+	received: "",
+	preference: "low",
+	status: "",
+	confirmations: int,
+ 	metadata: 
+	{
+		title: "",
+		creator: "",
+		subject: "",
+		description: "",
+		publisher: "",
+		contributor: "",
+		date: "",
+		type: "",
+		format: "",
+		identifier: "",
+		source: "",
+		language: "",
+		relation: "",
+		coverage: "",
+		rights: ""
+	}
+
+}
+
