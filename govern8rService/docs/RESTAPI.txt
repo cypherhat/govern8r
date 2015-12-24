@@ -27,7 +27,7 @@ Client to Server:
 	4. Create payload with signature and ciphertext:
 		payload = 
 		{
-			signature: "", ##  the signature from stem 3
+			signature: "", ##  the signature from step 3
 			message: "" ## the message from step 2
 		}
 	5. Send this as the REST request payload.
@@ -45,7 +45,7 @@ Server to Client:
 	4. Create payload with signature and ciphertext:
 		payload = 
 		{
-			signature: "", ##  the signature from stem 3
+			signature: "", ##  the signature from step 3
 			message: "" ## the message from step 2
 		}
 	5. Send this as the REST response payload.
