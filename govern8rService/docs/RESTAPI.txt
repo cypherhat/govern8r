@@ -14,7 +14,7 @@ Response:
 	govern8r_pubkey: "" ## the pubkey for govern8r
 }
 
-Here is our homegrown protocol for doing secure json over http. Raju please check this!!!:
+Here is our homegrown protocol for doing secure json over http. Raju please check this!!!
 
 Client to Server:
 
@@ -54,30 +54,58 @@ Server to Client:
 			json = decrypt (payload, client_privkey)
 
 
+Authentication protocol (inspired by BitID)
 
-## Note: The authentication API does not use the above hoemgrown protocol!
+This probably should be done using JSON Web Tokens. That said, this is simple enough. And it is only for GETs
+
+1. Registered client requests a challenge:
+	a. /govern8r/api/v1/challenge/<address> (GET)
+2. If server detects that the client hasn't successfully registered, the authentication fails
+3. If client is registered, the server:
+	a. Generates a nonce and stores it in the DB for that client.
+	b. Challenges: sends the nonce back to the client (in signed, encrypted payload)
+4. Client responds to challenge:
+	a. verifies signature
+	b. decrypts payload
+	c. signs nonce
+	d. creates new payload, signs and encrypts it
+	e. /govern8r/api/v1/challenge/<address> (PUT)
+5. Server authenticates challenge assertion
+	a. verifies signature
+	b. decrypts payload
+	c. checks nonce signature
+	d. checks nonce still exists in DB
+	e. constructs client fingerprint (user agent + ???)
+	f. govern8r_token = hash(hash(fingerprint) + hash(nonce))
+	g. set response cookie: govern8r_token
+
+6. Client sends authentication token to server - client address is included in URI:
+	a. Server constructs client fingerprint (user agent + ???)
+	b. Server retrieves nonce associated with client address
+	c. Server computes hash(hash(fingerprint) + hash(nonce))
+	d. If govern8r_token cookie matches the hash, user is authenticated... 
+
+
 
 # Authentication API
-RESOURCE: /govern8r/api/v1/challenge (GET)
+RESOURCE: /govern8r/api/v1/challenge/<address> (GET)
 
 Response: 
 { 
-	uri: "bitid://...", ##the bitid authentication URI
-	qr_code: "" ## the QR code
+	nonce: "" ## nonce
 }
 
 RESOURCE: /govern8r/api/v1/challenge/<address> (PUT)
 
 Request:
 { 
-	uri: "bitid://...", ##the bitid authentication URI
-	signature: "" 	## the above uri signed by the private key associated with <address>. 
-					## Authentication will fail if the user hasn't registered.
+	signed_nonce: "" 	## the above nonce signed by the private key associated with <address>. 
+						## Authentication will fail if the user hasn't registered.
 }
 
 Response Header: 
 { 
-	cookie -> session: "" ## if authentication success, then a valid session id will be returned.
+	cookie -> govern8r_token: "" ## if authentication success, then a valid token will be returned.
 }
 
 # Registration API
@@ -100,7 +128,7 @@ RESOURCE: /govern8r/api/v1/account/<address> (GET)
 
 Request Header:
 {
-	cookie -> session: "" ## the session id returned from a successful authentication
+	cookie -> govern8r_token: "" ## the govern8r authentication token
 }
 
 Response: 
@@ -110,11 +138,11 @@ Response:
 	date_created: "" ## the date the user was created
 }
 
-RESOURCE: /govern8r/api/v1/notarization/<document_hash> (PUT)
+RESOURCE: /govern8r/api/v1/account/<address>/notarization/<document_hash> (PUT)
 
 Request Header:
 {
-	cookie -> session: "" ## the session id returned from a successful authentication
+	cookie -> govern8r_token: "" ## the govern8r authentication token
 }
 
 Request:
@@ -144,11 +172,11 @@ Response:
 	tx_hash: "" ## the blockchain transaction
 }
 
-RESOURCE: /govern8r/api/v1/notarization/<document_hash>/status (GET)
+RESOURCE: /govern8r/api/v1/account/<address>/notarization/<document_hash>/status (GET)
 
 Request Header:
 {
-	cookie -> session: "" ## the session id returned from a successful authentication
+	cookie -> govern8r_token: "" ## the govern8r authentication token
 }
 
 Response:

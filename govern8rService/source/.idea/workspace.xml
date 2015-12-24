@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3381e044-c44c-4fa7-bfaa-e88bb31eebf7" name="Default" comment="" />
+    <list default="true" id="3381e044-c44c-4fa7-bfaa-e88bb31eebf7" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../docs/RESTAPI.txt" afterPath="$PROJECT_DIR$/../docs/RESTAPI.txt" />
+    </list>
     <ignored path="source.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,11 +23,43 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="notaryservice.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="notaryservice.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/notaryservice.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="1.3463204">
+            <state vertical-scroll-proportion="0.0">
               <caret line="251" column="4" selection-start-line="251" selection-start-column="4" selection-end-line="251" selection-end-column="4" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="notes.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/notes.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.58181816">
+              <caret line="39" column="7" selection-start-line="39" selection-start-column="7" selection-end-line="39" selection-end-column="7" />
+              <folding>
+                <element signature="e#0#34#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="globals.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../../virtualenvs/server/lib/python2.7/site-packages/flask/globals.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="40" column="21" selection-start-line="40" selection-start-column="21" selection-end-line="40" selection-end-column="21" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="local.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../../../virtualenvs/server/lib/python2.7/site-packages/werkzeug/local.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="291" column="8" selection-start-line="291" selection-start-column="8" selection-end-line="291" selection-end-column="8" />
               <folding />
             </state>
           </provider>
@@ -61,16 +95,14 @@
         <option value="$PROJECT_DIR$/templates/index.html" />
         <option value="$PROJECT_DIR$/templates/layout.html" />
         <option value="$PROJECT_DIR$/notaryservice.py" />
-        <option value="$PROJECT_DIR$/notes.py" />
         <option value="$PROJECT_DIR$/dynamo.py" />
+        <option value="$PROJECT_DIR$/notes.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="114" />
-    <option name="y" value="68" />
     <option name="width" value="1440" />
-    <option name="height" value="790" />
+    <option name="height" value="900" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
@@ -125,6 +157,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../bin/python3" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
+    <property name="FullScreen" value="true" />
   </component>
   <component name="RunManager" selected="Python.dynamo">
     <configuration default="false" name="notaryservice" type="PythonConfigurationType" factoryName="Python" temporary="true">
@@ -340,10 +373,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="114" y="68" width="1440" height="790" extended-state="0" />
-    <editor active="false" />
+    <frame x="0" y="0" width="1440" height="900" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.31232092" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -658,16 +691,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/notes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.49342105">
-          <caret line="17" column="4" selection-start-line="17" selection-start-column="4" selection-end-line="17" selection-end-column="4" />
-          <folding>
-            <element signature="e#0#34#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/../../../virtualenvs/server/lib/python2.7/site-packages/flask/app.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.11188811">
@@ -746,9 +769,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/notaryservice.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.3463204">
+        <state vertical-scroll-proportion="0.0">
           <caret line="251" column="4" selection-start-line="251" selection-start-column="4" selection-end-line="251" selection-end-column="4" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../virtualenvs/server/lib/python2.7/site-packages/flask/globals.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="40" column="21" selection-start-line="40" selection-start-column="21" selection-end-line="40" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../virtualenvs/server/lib/python2.7/site-packages/werkzeug/local.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="291" column="8" selection-start-line="291" selection-start-column="8" selection-end-line="291" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/notes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.58181816">
+          <caret line="39" column="7" selection-start-line="39" selection-start-column="7" selection-end-line="39" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#34#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
