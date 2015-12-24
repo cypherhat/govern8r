@@ -1,0 +1,38 @@
+Digital Notary: Design Details (tables)
+
+We are gonna use DynamoDB - Amazon's document database (think mongoDB). 
+
+We need 2 tables:
+
+Account
+	address 
+	email
+	nonce
+	status
+	date_created
+
+Notarization
+	Dublin Core metadata (15)
+		title
+		creator
+		subject
+		description
+		publisher
+		contributor
+		date
+		type
+		format
+		identifier
+		source
+		language
+		relation
+		coverage
+		rights
+	address
+	digest
+	transaction
+	status
+	date_created
+	date_confirmed
+
+We need Python code to do CRUD on these tables (boto3).

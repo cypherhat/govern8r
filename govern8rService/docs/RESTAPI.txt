@@ -1,0 +1,59 @@
+Digital Notary: Design Details (REST API)
+(ToDO: Error Handling)
+
+Client side, we use 'requests' to invoke the REST API. Server side we'll use 'FlaskAPI' to build a REST service for the following:
+
+
+We could do single sign-on, or not. If we did SSO, we need to return a session id on successful authentication. For the intial pass, we will authenticate each time. This means that we have to GET a challenge and POST the signed challenge each time... (Discussion here...)
+
+RESOURCE: /govern8r/api/v1/challenge (GET)
+
+Response: 
+{ 
+	uri: "bitid://..." //the bitid authentication URI
+}
+
+RESOURCE: /govern8r/api/v1/challenge/<email> (PUT)
+
+Request:
+{ 
+	uri: "bitid://...", //the bitid authentication URI
+	signature: "" 	// the above uri signed by the private key associated with the address
+					// associated with the <email>. Authentication will fail if the user hasn't 
+					// registered.
+}
+
+Response Header: 
+{ 
+	cookie -> session: "" // if authentication success, then a valid session id will be returned.
+}
+
+RESOURCE: /govern8r/api/v1/account (POST)
+
+Request:
+{ 
+	uri: "bitid://...", //the bitid authentication URI
+	address: "", // Bitcoin address
+	signature: "", // the above uri signed by the private key associated with the above address
+	email: ""  // the email address for the account
+}
+
+
+Response: 
+{ 
+}
+
+RESOURCE: /govern8r/api/v1/account/<email> (GET)
+
+Request Header:
+{
+	cookie -> session: "" // the session id returned from a successful authentication
+}
+
+Response: 
+{ 
+	address: "", // Bitcoin address
+	email: "",  // the email address for the account
+	date_created: "" // the date the user was created
+}
+
