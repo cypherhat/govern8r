@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="3381e044-c44c-4fa7-bfaa-e88bb31eebf7" name="Default" comment="" />
+    <list default="true" id="3381e044-c44c-4fa7-bfaa-e88bb31eebf7" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/../../govern8rClient/source/testsign2.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../govern8rClient/source/.idea/workspace.xml" afterPath="$PROJECT_DIR$/../../govern8rClient/source/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../govern8rClient/source/testsign.py" afterPath="$PROJECT_DIR$/../../govern8rClient/source/testsign.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
     <ignored path="source.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
