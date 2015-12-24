@@ -28,7 +28,7 @@ Client to Server:
 		payload = 
 		{
 			signature: "", ##  the signature from step 3
-			message: "" ## the message from step 2
+			message: "" ## the ciphertext from step 2
 		}
 	5. Send this as the REST request payload.
 	6. Server will verify the message with the signature and if valid, then the server will decrypt it using its private key:
@@ -46,7 +46,7 @@ Server to Client:
 		payload = 
 		{
 			signature: "", ##  the signature from step 3
-			message: "" ## the message from step 2
+			message: "" ## the ciphertext from step 2
 		}
 	5. Send this as the REST response payload.
 	6. Client will verify the message with the signature and if valid, then the server will decrypt it using its private key:
@@ -78,7 +78,6 @@ This probably should be done using JSON Web Tokens. That said, this is simple en
 	e. constructs client fingerprint (user agent + ???)
 	f. govern8r_token = hash(hash(fingerprint) + hash(nonce))
 	g. set response cookie: govern8r_token
-
 6. Client sends authentication token to server - client address is included in URI:
 	a. Server constructs client fingerprint (user agent + ???)
 	b. Server retrieves nonce associated with client address
