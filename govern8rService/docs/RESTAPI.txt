@@ -10,7 +10,8 @@ RESOURCE: /govern8r/api/v1/challenge (GET)
 
 Response: 
 { 
-	uri: "bitid://..." //the bitid authentication URI
+	uri: "bitid://...", //the bitid authentication URI
+	qr_code: "" // the QR code
 }
 
 RESOURCE: /govern8r/api/v1/challenge/<address> (PUT)
