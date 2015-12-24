@@ -83,9 +83,11 @@ aws configure
 in directory govern8rClient:
 ```
 	source bin/activate
-	sudo pip install python-bitcoinlib
+	sudo pip install python-bitcoinlib ## this will change!!!
 	sudo pip install requests
 	sudo pip install certifi
+	sudo pip install ecdsa
+	sudo pip install pycrypto
 
 ```
 
