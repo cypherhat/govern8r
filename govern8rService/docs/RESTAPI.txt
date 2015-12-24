@@ -6,36 +6,86 @@ Client side, we use 'requests' to invoke the REST API. Server side we'll use 'Fl
 
 We could do single sign-on, or not. If we did SSO, we need to return a session id on successful authentication. For the intial pass, we will authenticate each time. This means that we have to GET a challenge and POST the signed challenge each time... (Discussion here...)
 
+
+RESOURCE: /govern8r/api/v1/pubkey (GET)
+
+Response: 
+{ 
+	govern8r_pubkey: "" ## the pubkey for govern8r
+}
+
+Here is our homegrown protocol for doing secure json over http. Raju please check this!!!:
+
+Client to Server:
+
+	1. Create json payload: 
+		payload = {....} 
+	2. Encrypt payload with govern8r's public key: 
+		ciphertext = encrypt(payload, govern8r_pubkey)
+	3. Sign encrypted payload with client's private key: 
+		signature = sign(ciphertext, client_privkey)
+	4. Create payload with signature and ciphertext:
+		payload = 
+		{
+			signature: "", ##  the signature from stem 3
+			message: "" ## the message from step 2
+		}
+	5. Send this as the REST request payload.
+	6. Server will verify the message with the signature and if valid, then the server will decrypt it using its private key:
+		if (verify(payload, client_pubkey))
+			json = decrypt (payload, govern8r_privkey)
+
+Server to Client:
+	1. Create json payload: 
+		payload = {....} 
+	2. Encrypt payload with client's public key: 
+		ciphertext = encrypt(payload, client_pubkey)
+	3. Sign encrypted payload with govern8r's private key: 
+		signature = sign(ciphertext, govern8r_privkey)
+	4. Create payload with signature and ciphertext:
+		payload = 
+		{
+			signature: "", ##  the signature from stem 3
+			message: "" ## the message from step 2
+		}
+	5. Send this as the REST response payload.
+	6. Client will verify the message with the signature and if valid, then the server will decrypt it using its private key:
+		if (verify(payload, govern8r_pubkey))
+			json = decrypt (payload, client_privkey)
+
+
+
+
 RESOURCE: /govern8r/api/v1/challenge (GET)
 
 Response: 
 { 
-	uri: "bitid://...", //the bitid authentication URI
-	qr_code: "" // the QR code
+	uri: "bitid://...", ##the bitid authentication URI
+	qr_code: "" ## the QR code
 }
 
 RESOURCE: /govern8r/api/v1/challenge/<address> (PUT)
 
 Request:
 { 
-	uri: "bitid://...", //the bitid authentication URI
-	signature: "" 	// the above uri signed by the private key associated with <address>. 
-					// Authentication will fail if the user hasn't registered.
+	uri: "bitid://...", ##the bitid authentication URI
+	signature: "" 	## the above uri signed by the private key associated with <address>. 
+					## Authentication will fail if the user hasn't registered.
 }
 
 Response Header: 
 { 
-	cookie -> session: "" // if authentication success, then a valid session id will be returned.
+	cookie -> session: "" ## if authentication success, then a valid session id will be returned.
 }
 
 RESOURCE: /govern8r/api/v1/account (POST)
 
 Request:
 { 
-	uri: "bitid://...", //the bitid authentication URI
-	address: "", // Bitcoin address
-	signature: "", // the above uri signed by the private key associated with the above address
-	email: ""  // the email address for the account
+	uri: "bitid://...", ##the bitid authentication URI
+	address: "", ## Bitcoin address
+	signature: "", ## the above uri signed by the private key associated with the above address
+	email: ""  ## the email address for the account
 }
 
 
@@ -47,21 +97,21 @@ RESOURCE: /govern8r/api/v1/account/<address> (GET)
 
 Request Header:
 {
-	cookie -> session: "" // the session id returned from a successful authentication
+	cookie -> session: "" ## the session id returned from a successful authentication
 }
 
 Response: 
 { 
-	address: "", // Bitcoin address
-	email: "",  // the email address for the account
-	date_created: "" // the date the user was created
+	address: "", ## Bitcoin address
+	email: "",  ## the email address for the account
+	date_created: "" ## the date the user was created
 }
 
 RESOURCE: /govern8r/api/v1/notarization/<document_hash> (PUT)
 
 Request Header:
 {
-	cookie -> session: "" // the session id returned from a successful authentication
+	cookie -> session: "" ## the session id returned from a successful authentication
 }
 
 Request:
@@ -88,14 +138,14 @@ Request:
 
 Response: 
 { 
-	tx_hash: "" // the blockchain transaction
+	tx_hash: "" ## the blockchain transaction
 }
 
 RESOURCE: /govern8r/api/v1/notarization/<document_hash>/status (GET)
 
 Request Header:
 {
-	cookie -> session: "" // the session id returned from a successful authentication
+	cookie -> session: "" ## the session id returned from a successful authentication
 }
 
 Response:
