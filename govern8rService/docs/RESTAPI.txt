@@ -55,7 +55,9 @@ Server to Client:
 
 
 
+## Note: The authentication API does not use the above hoemgrown protocol!
 
+# Authentication API
 RESOURCE: /govern8r/api/v1/challenge (GET)
 
 Response: 
@@ -78,16 +80,17 @@ Response Header:
 	cookie -> session: "" ## if authentication success, then a valid session id will be returned.
 }
 
+# Registration API
+
 RESOURCE: /govern8r/api/v1/account (POST)
 
 Request:
 { 
-	uri: "bitid://...", ##the bitid authentication URI
-	address: "", ## Bitcoin address
-	signature: "", ## the above uri signed by the private key associated with the above address
+	client_pubkey: "", ## Client's public key
 	email: ""  ## the email address for the account
 }
 
+## Note: server side this is a different signature validate flow
 
 Response: 
 { 
