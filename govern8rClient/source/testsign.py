@@ -1,5 +1,5 @@
-from bitcoin.wallet import CBitcoinSecret, P2PKHBitcoinAddress
-from bitcoin.signmessage import BitcoinMessage, VerifyMessage, SignMessage
+from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
+from bitcoinlib.signmessage import BitcoinMessage, VerifyMessage, SignMessage
 import encrypt
 
 

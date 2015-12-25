@@ -20,6 +20,8 @@ from services.fake_user_db_service import FakeUserDbService
 from services.fake_tx_db_service import FakeTxDbService
 from services.fake_nonce_db_service import FakeNonceDbService
 
+from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
+key = CBitcoinSecret("L4vB5fomsK8L95wQ7GFzvErYGht49JsCPJyJMHpB4xGM6xgi2jvG")
 
 
 # Constant indicating if we run the app against Bitcoin test network or main network

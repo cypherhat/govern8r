@@ -83,7 +83,6 @@ aws configure
 in directory govern8rClient:
 ```
 	source bin/activate
-	sudo pip install python-bitcoinlib ## this will change!!!
 	sudo pip install requests
 	sudo pip install certifi
 	sudo pip install ecdsa
@@ -100,5 +99,22 @@ Change to the pycparser directory and:
 ```
 	sudo python ./setup.py install
 	sudo pip install pyopenssl
+```
+
+
+The python-bitcoinlib is a better utility than https://github.com/vbuterin/pybitcointools for some things. However, https://github.com/vbuterin/pybitcointools seems to be the most dominant bitcoin library in python. We need to use both. The problem is that both use the same package name - so they can't be used together. So what I did was forked the project and repackaged with a different name.
+```
+git clone https://github.com/cypherhat/python-bitcoinlib.git
+
+```
+
+Find the directory where setup.py is (should be python-bitcoinlib). Then set your virtual environment to client, lib, or service (whichever you are working with). And run this to install the package.
+```
+sudo python setup.py install
+```
+
+You should see this package now: python-bitcoinlib (0.5.1-SNAPSHOT)
+```
+sudo pip list
 ```
 
