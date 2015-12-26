@@ -1,9 +1,6 @@
-
-from bitcoin import *
 import encrypt
-
-
 import requests
+from bitcoin import *
 
 key  = sha256('L4vB5fomsK8L95wQ7GFzvErYGht49JsCPJyJMHpB4xGM6xgi2jvG')
 pubkey = privtopub(key)

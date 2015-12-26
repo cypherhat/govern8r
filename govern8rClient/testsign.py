@@ -1,7 +1,6 @@
-from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
-from bitcoinlib.signmessage import BitcoinMessage, VerifyMessage, SignMessage
 import encrypt
-
+from bitcoinlib.signmessage import BitcoinMessage, VerifyMessage, SignMessage
+from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
 
 key = CBitcoinSecret("L4vB5fomsK8L95wQ7GFzvErYGht49JsCPJyJMHpB4xGM6xgi2jvG")
 address = P2PKHBitcoinAddress.from_pubkey(key.pub)  # "1F26pNMrywyZJdr22jErtKcjF8R3Ttt55G"
