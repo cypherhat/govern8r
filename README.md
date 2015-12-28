@@ -87,6 +87,7 @@ in directory govern8rClient:
 	sudo pip install certifi
 	sudo pip install ecdsa
 	sudo pip install pycrypto
+	sudo pip install configparser
 
 ```
 
