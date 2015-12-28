@@ -1,0 +1,34 @@
+
+# get hash of a file
+def  hash_file(file):
+
+# create a new wallet
+
+def create_wallet(file):
+
+
+def open_wallet(file,password):
+
+def create_privkey(wallet):
+
+def get_publickey(wallet,keyaddr):
+
+def get_publicaddr(wallet,keyaddr):
+
+def list_publicaddr();
+
+def sign(message,keyaddr);
+
+def verify(message,keyaddr):
+
+def  login_notary_service( url) :
+
+def  register_file( url, cointype=testnet,file ,keyaddr):
+
+def  list_notarized_files():
+
+def  notary_details(object) :
+
+def  verify_notary_details(file) :
+    
+def register_user(username,publickey) :
