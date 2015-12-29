@@ -1,6 +1,7 @@
 import configparser
 import os
 from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
+from bitcoin.signmessage import BitcoinMessage, VerifyMessage, SignMessage
 import encrypt
 from bitcoinlib.core import b2x, x
 import hashlib
@@ -14,6 +15,7 @@ def read_wallet(file_name, key_name):
     config.sections()
     private_hex = config[key_name]['private_key']
     key = CBitcoinSecret.from_secret_bytes(private_hex)
+
 
 
 def create_new_wallet(file_name, key_name):
@@ -33,6 +35,7 @@ def create_new_wallet(file_name, key_name):
     section_name['private_key'] = private_hex
     section_name['public_key'] = public_hex
     section_name['public_addr'] = str_address
+    section_name['private_base58'] = base58CheckEncode(0x80, private_hex.decode('hex'))
     with open(file_name, 'w') as configfile:
         config.write(configfile)
 
@@ -69,3 +72,46 @@ def base58CheckEncode(version, payload):
     result = s + checksum
     leadingZeros = countLeadingChars(result, '\0')
     return '1' * leadingZeros + base58encode(base256decode(result))
+    
+    
+class NotaryWallet(object):
+    """An encapsulated wallet for notary stuff.
+
+    """
+    def __init__(self,file_name,key_name):
+        self.file_name=file_name
+        self.key_name = key_name
+        self.key=self.read_wallet(file_name, key_name)
+        self.address = P2PKHBitcoinAddress.from_pubkey(self.key.pub)
+        print "Notary Wallet created"
+
+    def read_wallet(self,file_name, key_name):
+
+        config = configparser.ConfigParser()
+        config.read(file_name)
+        config.sections()
+
+        self.private_hex = config[key_name]['private_key']
+        self.public_key  = config[key_name]['public_key']
+        self.public_addr  = config[key_name]['public_addr']
+        self.private_base58 = config[key_name]['private_base58']
+        key = CBitcoinSecret.from_secret_bytes(self.private_hex)
+        return key
+
+
+    def sign(self, message):
+        btcmessage = BitcoinMessage(message)
+        signature = SignMessage(self.key, btcmessage)
+        return signature
+    def verify(self, message,signature):
+        btcmessage = BitcoinMessage(message)
+        return VerifyMessage(self.address, btcmessage, signature)
+    def encrypt(self, message):
+        encrypted = encrypt.encrypt(self.key.pub, message)
+        return encrypted
+    def decrypt(self, emessage):
+         decrypted = encrypt.decrypt(self.private_base58, encrypted)
+def main():
+    #    writewallet()
+#    create_new_wallet("bootstrap.ini","loginid")
+    notary_obj = NotaryWallet("bootstrap.ini", "loginid")
