@@ -25,6 +25,7 @@ In directory govern8rService:
 	sudo pip install certifi
 	sudo pip install configparser
 	sudo pip install ecdsa
+	sudo pip install pycrypto
 
 ```
 
