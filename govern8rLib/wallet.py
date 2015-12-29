@@ -33,11 +33,7 @@ def create_new_wallet():
         raise ValueError('Wallet already exists!')
     # Create private key
     private_key = os.urandom(32)
-    print("\nPrivate Key Raw: %s" % private_key)
     private_hex = private_key.encode("hex")
-    print("\nPrivate Key Hex: >%s<" % private_hex)
-    decode_private_hex = private_hex.decode("hex")
-    print("\nPrivate Key Decoded Hex: >%s< " % decode_private_hex)
 
     config = configparser.ConfigParser()
     config.add_section(section_name)
