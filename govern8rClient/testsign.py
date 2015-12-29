@@ -57,7 +57,7 @@ print("\nClear: %s" % message)
 encrypted = encrypt.encrypt(key.pub, message)
 print("\nEncrypted: %s" % encrypted)
 
-decrypted = encrypt.decrypt("L4vB5fomsK8L95wQ7GFzvErYGht49JsCPJyJMHpB4xGM6xgi2jvG", encrypted)
+decrypted = encrypt.decrypt(private_key, encrypted)
 print("\nDecrypted: %s" % decrypted)
 
 signature = SignMessage(key, btcmessage)

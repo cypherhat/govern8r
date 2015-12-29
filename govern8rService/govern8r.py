@@ -1,5 +1,6 @@
 from flask import request, url_for
 from flask_api import FlaskAPI, status, exceptions
+import govern8rLib
 
 
 app = FlaskAPI(__name__)
@@ -27,23 +28,21 @@ def challenge(address):
     return ""
 
 
-@app.route("/govern8r/api/v1/account", methods=['POST'])
-def account():
-    """
-    Account registration
-    """
-
-    # request.method == 'POST'
-    return ""
-
-
 @app.route("/govern8r/api/v1/account/<address>", methods=['GET'])
 def account(address):
     """
     Account registration
     """
+    # request.method == 'POST'
+    return ""
 
-    # request.method == 'GET'
+
+@app.route("/govern8r/api/v1/account", methods=['POST'])
+def register_account():
+    """
+    Account registration
+    """
+    # request.method == 'POST'
     return ""
 
 
@@ -65,6 +64,9 @@ def notarization_status(address, document_hash):
 
     # request.method == 'GET'
     return ""
+
+
+def initialize_wallet():
 
 
 if __name__ == "__main__":
