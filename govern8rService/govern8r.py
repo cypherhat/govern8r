@@ -1,4 +1,4 @@
-from flask import request, jsonify
+from flask import request, Response, json
 from flask_api import FlaskAPI, status, exceptions
 from wallet import NotaryWallet
 
@@ -14,7 +14,13 @@ def pubkey():
     """
     # request.method == 'GET'
     public_key = wallet.get_public_key()
-    return {'public_key': public_key.encode("hex")}
+    data = {
+        'public_key': public_key.encode("hex")
+    }
+    js = json.dumps(data)
+
+    resp = Response(js, status=200, mimetype='application/json')
+    return resp
 
 
 @app.route("/govern8r/api/v1/challenge/<address>", methods=['GET', 'PUT'])
