@@ -1,10 +1,10 @@
 from flask import request, url_for
 from flask_api import FlaskAPI, status, exceptions
-import govern8rLib
+from wallet import NotaryWallet
 
 
 app = FlaskAPI(__name__)
-
+wallet = NotaryWallet()
 
 @app.route("/govern8r/api/v1/pubkey", methods=['GET'])
 def pubkey():
@@ -13,7 +13,7 @@ def pubkey():
     """
 
     # request.method == 'GET'
-    return ""
+    return wallet.get_public_key()
 
 
 @app.route("/govern8r/api/v1/challenge/<address>", methods=['GET', 'PUT'])
@@ -64,9 +64,6 @@ def notarization_status(address, document_hash):
 
     # request.method == 'GET'
     return ""
-
-
-def initialize_wallet():
 
 
 if __name__ == "__main__":

@@ -24,6 +24,8 @@ In directory govern8rService:
 	sudo pip install blockcypher
 	sudo pip install certifi
 	sudo pip install configparser
+	sudo pip install ecdsa
+
 ```
 
 I've had issues installing a few things due to SSL errors. When I installed pyopenssl, I had such an error. The failure was on the pycparser package. So, my resolution is to clone the repo and install manually.
