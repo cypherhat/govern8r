@@ -30,7 +30,7 @@ def read_private_key():
 
 
 def create_new_wallet():
-    if wallet_exists(file_name):
+    if wallet_exists():
         raise ValueError('Wallet already exists!')
     # Create private key
     private_key = os.urandom(32)
