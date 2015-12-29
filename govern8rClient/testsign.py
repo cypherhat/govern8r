@@ -1,72 +1,23 @@
 import encrypt
-from bitcoinlib.signmessage import BitcoinMessage, VerifyMessage, SignMessage
-from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
-import os
-import hashlib
+from wallet import NotaryWallet
 
+wallet = NotaryWallet()
 
-b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+print("\nWallet Private Key %s" % wallet.get_private_key())
+print("\nWallet Public Key %s" % wallet.get_public_key())
+print("\nWallet Private Key WIF %s" % wallet.get_private_key_wif())
+print("\nWallet Address %s" % wallet.get_bitcoin_address())
 
-
-def base58encode(n):
-    result = ''
-    while n > 0:
-        result = b58[n % 58] + result
-        n /= 58
-    return result
-
-
-def countLeadingChars(s, ch):
-    count = 0
-    for c in s:
-        if c == ch:
-            count += 1
-        else:
-            break
-    return count
-
-
-
-def base256decode(s):
-    result = 0
-    for c in s:
-        result = result * 256 + ord(c)
-    return result
-
-
-def base58CheckEncode(version, payload):
-    s = chr(version) + payload
-    checksum = hashlib.sha256(hashlib.sha256(s).digest()).digest()[0:4]
-    result = s + checksum
-    leadingZeros = countLeadingChars(result, '\0')
-    return '1' * leadingZeros + base58encode(base256decode(result))
-
-
-def privateKeyToWif(key_hex):
-    return base58CheckEncode(0x80, key_hex.decode('hex'))
-
-private_key = privateKeyToWif(os.urandom(32).encode('hex'))
-
-key = CBitcoinSecret(private_key)
-address = P2PKHBitcoinAddress.from_pubkey(key.pub)  # "1F26pNMrywyZJdr22jErtKcjF8R3Ttt55G"
 message = "bitid://localhost:5000/callback?x=30f56bc022dde976&u=1"
 
-btcmessage = BitcoinMessage(message)
-
 print("\nClear: %s" % message)
-encrypted = encrypt.encrypt(key.pub, message)
+encrypted = encrypt.encrypt(wallet.get_public_key(), message)
 print("\nEncrypted: %s" % encrypted)
 
-decrypted = encrypt.decrypt("L4vB5fomsK8L95wQ7GFzvErYGht49JsCPJyJMHpB4xGM6xgi2jvG", encrypted)
+decrypted = encrypt.decrypt(wallet.get_private_key_wif(), encrypted)
 print("\nDecrypted: %s" % decrypted)
 
-signature = SignMessage(key, btcmessage)
+signature = wallet.sign(message)
 
-print(key, address)
-print("Address: %s" % address)
-print("Message: %s", btcmessage)
 print("\nSignature: %s" % signature)
-print("\nVerified: %s" % VerifyMessage(address, btcmessage, signature))
-
-print("\nTo verify using bitcoin core;")
-print("`bitcoin-cli verifymessage %s \"%s\" \"%s\"`" % (address, signature.decode('ascii'), btcmessage))
+print("\nVerified: %s" % wallet.verify(message, signature))
