@@ -1,8 +1,9 @@
 import configparser
 import os
 from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
-from bitcoin.signmessage import BitcoinMessage, VerifyMessage, SignMessage
+from bitcoinlib.signmessage import BitcoinMessage, VerifyMessage, SignMessage
 import base58
+import encrypt
 
 section_name = 'NotaryWallet'
 file_name = 'notarywallet.data'
@@ -62,9 +63,9 @@ class NotaryWallet(object):
         signature = SignMessage(self.private_key, bitcoin_message)
         return signature
 
-    def verify(self, message, signature):
+    def verify(self, address, message, signature):
         bitcoin_message = BitcoinMessage(message)
-        return VerifyMessage(self.address, bitcoin_message, signature)
+        return VerifyMessage(address, bitcoin_message, signature)
 
     def get_private_key(self):
         return self.private_key

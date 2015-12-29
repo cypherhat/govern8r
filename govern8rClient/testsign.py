@@ -55,13 +55,7 @@ print("\nWallet Public Key %s" % wallet.get_public_key())
 print("\nWallet Private Key WIF %s" % wallet.get_private_key_wif())
 print("\nWallet Address %s" % wallet.get_bitcoin_address())
 
-private_key = privateKeyToWif(os.urandom(32).encode('hex'))
-
-key = CBitcoinSecret(private_key)
-address = P2PKHBitcoinAddress.from_pubkey(key.pub)  # "1F26pNMrywyZJdr22jErtKcjF8R3Ttt55G"
 message = "bitid://localhost:5000/callback?x=30f56bc022dde976&u=1"
-
-btcmessage = BitcoinMessage(message)
 
 print("\nClear: %s" % message)
 encrypted = encrypt.encrypt(wallet.get_public_key(), message)
@@ -70,13 +64,9 @@ print("\nEncrypted: %s" % encrypted)
 decrypted = encrypt.decrypt(wallet.get_private_key_wif(), encrypted)
 print("\nDecrypted: %s" % decrypted)
 
-signature = SignMessage(key, btcmessage)
+signature = wallet.sign(message)
 
-print(key, address)
-print("Address: %s" % address)
-print("Message: %s", btcmessage)
+btcmessage = BitcoinMessage(message)
 print("\nSignature: %s" % signature)
-print("\nVerified: %s" % VerifyMessage(address, btcmessage, signature))
-
-print("\nTo verify using bitcoin core;")
-print("`bitcoin-cli verifymessage %s \"%s\" \"%s\"`" % (address, signature.decode('ascii'), btcmessage))
+print("\nVerified: %s" % VerifyMessage(wallet.get_bitcoin_address(), btcmessage, signature))
+print("\nVerified: %s" % wallet.verify(wallet.get_bitcoin_address(), message, signature))
