@@ -2,7 +2,7 @@ import configparser
 import os
 from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
 from bitcoin.signmessage import BitcoinMessage, VerifyMessage, SignMessage
-
+import base58
 
 section_name = 'NotaryWallet'
 file_name = 'notarywallet.data'
@@ -16,7 +16,7 @@ def wallet_exists():
 
 
 def read_private_key():
-    if wallet_exists(file_name):
+    if wallet_exists():
         config = configparser.ConfigParser()
         config.read(file_name)
         if config.has_option(section_name, 'private_key'):
@@ -51,7 +51,7 @@ class NotaryWallet(object):
     def __init__(self):
         if not wallet_exists():
             create_new_wallet()
-        self.private_key = CBitcoinSecret.from_secret_bytes(self.read_private_key())
+        self.private_key = CBitcoinSecret.from_secret_bytes(read_private_key())
         self.public_key = self.private_key.pub
         self.address = P2PKHBitcoinAddress.from_pubkey(self.public_key)
         print "Notary Wallet created"
@@ -64,6 +64,18 @@ class NotaryWallet(object):
     def verify(self, message, signature):
         bitcoin_message = BitcoinMessage(message)
         return VerifyMessage(self.address, bitcoin_message, signature)
+
+    def get_private_key(self):
+        return self.private_key
+
+    def get_public_key(self):
+        return self.public_key
+
+    def get_bitcoin_address(self):
+        return P2PKHBitcoinAddress.from_pubkey(self.public_key)
+
+    def get_private_key_wif(self):
+        return base58.base58_check_encode(0x80, self.private_key)
 
 
 def main():
