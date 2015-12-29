@@ -21,8 +21,7 @@ def read_private_key():
         config.read(file_name)
         if config.has_option(section_name, 'private_key'):
             private_hex = config.get (section_name, 'private_key')
-            key = CBitcoinSecret.from_secret_bytes(private_hex)
-            return key
+            return private_hex
         else:
             raise ValueError('Private key does not exist!')
     else:
@@ -34,7 +33,11 @@ def create_new_wallet():
         raise ValueError('Wallet already exists!')
     # Create private key
     private_key = os.urandom(32)
+    print("\nPrivate Key Raw: %s" % private_key)
     private_hex = private_key.encode("hex")
+    print("\nPrivate Key Hex: >%s<" % private_hex)
+    decode_private_hex = private_hex.decode("hex")
+    print("\nPrivate Key Decoded Hex: >%s< " % decode_private_hex)
 
     config = configparser.ConfigParser()
     config.add_section(section_name)
@@ -51,7 +54,9 @@ class NotaryWallet(object):
     def __init__(self):
         if not wallet_exists():
             create_new_wallet()
-        self.private_key = CBitcoinSecret.from_secret_bytes(read_private_key())
+        self.private_key_hex = read_private_key()
+        print("\nFrom File Private Key Hex: >%s<" % self.private_key_hex)
+        self.private_key = CBitcoinSecret.from_secret_bytes(self.private_key_hex)
         self.public_key = self.private_key.pub
         self.address = P2PKHBitcoinAddress.from_pubkey(self.public_key)
         print "Notary Wallet created"
@@ -75,7 +80,7 @@ class NotaryWallet(object):
         return P2PKHBitcoinAddress.from_pubkey(self.public_key)
 
     def get_private_key_wif(self):
-        return base58.base58_check_encode(0x80, self.private_key)
+        return base58.base58_check_encode(0x80, self.private_key_hex.decode("hex"))
 
 
 def main():

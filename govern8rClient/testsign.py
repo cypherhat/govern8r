@@ -50,6 +50,11 @@ def privateKeyToWif(key_hex):
 
 wallet = NotaryWallet()
 
+print("\nWallet Private Key %s" % wallet.get_private_key())
+print("\nWallet Public Key %s" % wallet.get_public_key())
+print("\nWallet Private Key WIF %s" % wallet.get_private_key_wif())
+print("\nWallet Address %s" % wallet.get_bitcoin_address())
+
 private_key = privateKeyToWif(os.urandom(32).encode('hex'))
 
 key = CBitcoinSecret(private_key)
@@ -59,10 +64,10 @@ message = "bitid://localhost:5000/callback?x=30f56bc022dde976&u=1"
 btcmessage = BitcoinMessage(message)
 
 print("\nClear: %s" % message)
-encrypted = encrypt.encrypt(key.pub, message)
+encrypted = encrypt.encrypt(wallet.get_public_key(), message)
 print("\nEncrypted: %s" % encrypted)
 
-decrypted = encrypt.decrypt(private_key, encrypted)
+decrypted = encrypt.decrypt(wallet.get_private_key_wif(), encrypted)
 print("\nDecrypted: %s" % decrypted)
 
 signature = SignMessage(key, btcmessage)
