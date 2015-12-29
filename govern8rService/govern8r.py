@@ -10,12 +10,8 @@ wallet = NotaryWallet()
 @app.route("/govern8r/api/v1/pubkey", methods=['GET'])
 def pubkey():
     """
-    Return server public key.
+    Return server public key. The key is encoded in hex and needs to be decoded from hex to be used by the encryption utility.
     """
-    print("\nWallet Private Key %s" % wallet.get_private_key())
-    print("\nWallet Public Key %s" % wallet.get_public_key())
-    print("\nWallet Private Key WIF %s" % wallet.get_private_key_wif())
-    print("\nWallet Address %s" % wallet.get_bitcoin_address())
     # request.method == 'GET'
     public_key = wallet.get_public_key()
     return {'public_key': public_key.encode("hex")}
