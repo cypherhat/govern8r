@@ -3,6 +3,8 @@ from bitcoinlib.signmessage import BitcoinMessage, VerifyMessage, SignMessage
 from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
 import os
 import hashlib
+from wallet import NotaryWallet
+
 
 
 b58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
@@ -44,6 +46,9 @@ def base58CheckEncode(version, payload):
 
 def privateKeyToWif(key_hex):
     return base58CheckEncode(0x80, key_hex.decode('hex'))
+
+
+wallet = NotaryWallet()
 
 private_key = privateKeyToWif(os.urandom(32).encode('hex'))
 
