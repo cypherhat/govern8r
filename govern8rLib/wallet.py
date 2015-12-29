@@ -52,20 +52,18 @@ class NotaryWallet(object):
         if not wallet_exists():
             create_new_wallet()
         self.private_key_hex = read_private_key()
-        print("\nFrom File Private Key Hex: >%s<" % self.private_key_hex)
         self.private_key = CBitcoinSecret.from_secret_bytes(self.private_key_hex)
         self.public_key = self.private_key.pub
         self.address = P2PKHBitcoinAddress.from_pubkey(self.public_key)
-        print "Notary Wallet created"
 
     def sign(self, message):
         bitcoin_message = BitcoinMessage(message)
         signature = SignMessage(self.private_key, bitcoin_message)
         return signature
 
-    def verify(self, address, message, signature):
+    def verify(self, message, signature):
         bitcoin_message = BitcoinMessage(message)
-        return VerifyMessage(address, bitcoin_message, signature)
+        return VerifyMessage(self.address, bitcoin_message, signature)
 
     def get_private_key(self):
         return self.private_key
@@ -74,7 +72,7 @@ class NotaryWallet(object):
         return self.public_key
 
     def get_bitcoin_address(self):
-        return P2PKHBitcoinAddress.from_pubkey(self.public_key)
+        return self.address
 
     def get_private_key_wif(self):
         return base58.base58_check_encode(0x80, self.private_key_hex.decode("hex"))
