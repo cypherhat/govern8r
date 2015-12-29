@@ -17,6 +17,7 @@ def read_wallet(file_name, key_name):
     key = CBitcoinSecret.from_secret_bytes(private_hex)
 
 
+
 def create_new_wallet(file_name, key_name):
     # Create private key
     private_key = os.urandom(32)
@@ -34,6 +35,7 @@ def create_new_wallet(file_name, key_name):
     section_name['private_key'] = private_hex
     section_name['public_key'] = public_hex
     section_name['public_addr'] = str_address
+    section_name['private_base58'] = base58CheckEncode(0x80, private_hex.decode('hex'))
     with open(file_name, 'w') as configfile:
         config.write(configfile)
 
