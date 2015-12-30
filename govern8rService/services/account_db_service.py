@@ -54,7 +54,7 @@ class AccountDbService(object):
         if not self._check_account(account):
             return False
         # Checks that a account with same values has not already been stored in db
-        if (self.get_account_by_public_key(account.public_key) is None):
+        if self.get_account_by_public_key(account.public_key) is None:
             # Creates the account in db
             return True
         else:
@@ -70,7 +70,7 @@ class AccountDbService(object):
         if not self._check_account(account):
             return False
         # Checks that a account with same values exists in db
-        if (not self.get_account_by_public_key(account.public_key) is None) or (not self.get_account_by_email(account.email) is None):
+        if not self.get_account_by_public_key(account.public_key) is None:
             # Updates the account in db
             return True
         else:
@@ -85,7 +85,7 @@ class AccountDbService(object):
         # Checks parameter
         if account is None: return False
         # Checks that a account with same values exists in db
-        if (not self.get_account_by_public_key(account.public_key) is None) or (not self.get_account_by_email(account.email) is None):
+        if not self.get_account_by_public_key(account.public_key) is None:
             return True
         else:
             return False        
