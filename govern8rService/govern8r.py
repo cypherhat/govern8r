@@ -1,6 +1,7 @@
-from flask import request, jsonify
-from flask_api import FlaskAPI, status, exceptions
+from flask import request, Response, json
+from flask_api import FlaskAPI
 from wallet import NotaryWallet
+from services.account_db_service import AccountDbService
 
 
 app = FlaskAPI(__name__)
@@ -14,7 +15,13 @@ def pubkey():
     """
     # request.method == 'GET'
     public_key = wallet.get_public_key()
-    return {'public_key': public_key.encode("hex")}
+    data = {
+        'public_key': public_key.encode("hex")
+    }
+    js = json.dumps(data)
+
+    resp = Response(js, status=200, mimetype='application/json')
+    return resp
 
 
 @app.route("/govern8r/api/v1/challenge/<address>", methods=['GET', 'PUT'])
@@ -26,7 +33,7 @@ def challenge(address):
         return ""
 
     # request.method == 'GET'
-    return ""
+    return {}
 
 
 @app.route("/govern8r/api/v1/account/<address>", methods=['GET'])
@@ -35,16 +42,27 @@ def account(address):
     Account registration
     """
     # request.method == 'POST'
-    return ""
+    return {}
 
 
-@app.route("/govern8r/api/v1/account", methods=['POST'])
+@app.route("/govern8r/api/v1/account/<address>/<nonce>", methods=['GET'])
+def confirm_account(address, nonce):
+    """
+    Account registration confirmation
+    """
+    # request.method == 'GET'
+    return {}
+
+
+@app.route("/govern8r/api/v1/account", methods=['GET', 'POST'])
 def register_account():
     """
     Account registration
     """
-    # request.method == 'POST'
-    return ""
+    account_service = AccountDbService()
+    if request.method == 'POST':
+        account_service.create_account(request.data)
+    return {}
 
 
 @app.route("/govern8r/api/v1/account/<address>/notarization/<document_hash>", methods=['PUT'])
@@ -54,7 +72,7 @@ def notarization(address, document_hash):
     """
 
     # request.method == 'PUT'
-    return ""
+    return {}
 
 
 @app.route("/govern8r/api/v1/account/<address>/notarization/<document_hash>/status", methods=['GET'])
@@ -64,7 +82,7 @@ def notarization_status(address, document_hash):
     """
 
     # request.method == 'GET'
-    return ""
+    return {}
 
 
 if __name__ == "__main__":

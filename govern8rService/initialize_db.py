@@ -1,50 +1,65 @@
 from __future__ import print_function # Python 2/3 compatibility
 import boto3
+import botocore
+from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
+try:
+    account_table = dynamodb.Table('Account')
+    print(account_table.table_status)
+except botocore.exceptions.ClientError as e:
+    print(e.response['Error']['Code'])
 
-
-account_table = dynamodb.create_table(
-    TableName='Account',
-    KeySchema=[
-        {
-            'AttributeName': 'email',
-            'KeyType': 'HASH'
+try:
+    account_table = dynamodb.create_table(
+        TableName='Account',
+        KeySchema=[
+            {
+                'AttributeName': 'public_key',
+                'KeyType': 'HASH'
+            }
+        ],
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'public_key',
+                'AttributeType': 'S'
+            }
+        ],
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
         }
-    ],
-    AttributeDefinitions=[
-        {
-            'AttributeName': 'email',
-            'AttributeType': 'S'
+    )
+
+    print("Account Table status:", account_table.table_status)
+except botocore.exceptions.ClientError as e:
+    print(e.response['Error']['Code'])
+
+
+try:
+    notarization_table = dynamodb.create_table(
+        TableName='Notarization',
+        KeySchema=[
+            {
+                'AttributeName': 'digest',
+                'KeyType': 'HASH'
+            }
+        ],
+        AttributeDefinitions=[
+            {
+                'AttributeName': 'digest',
+                'AttributeType': 'S'
+            }
+        ],
+        ProvisionedThroughput={
+            'ReadCapacityUnits': 10,
+            'WriteCapacityUnits': 10
         }
-    ],
-    ProvisionedThroughput={
-        'ReadCapacityUnits': 10,
-        'WriteCapacityUnits': 10
-    }
-)
-
-print("Account Table status:", account_table.table_status)
-
-notarization_table = dynamodb.create_table(
-    TableName='Notarization',
-    KeySchema=[
-        {
-            'AttributeName': 'digest',
-            'KeyType': 'HASH'
-        }
-    ],
-    AttributeDefinitions=[
-        {
-            'AttributeName': 'digest',
-            'AttributeType': 'S'
-        }
-    ],
-    ProvisionedThroughput={
-        'ReadCapacityUnits': 10,
-        'WriteCapacityUnits': 10
-    }
 
 
-)
-print("Notarization Table status:", notarization_table.table_status)
+    )
+    print("Notarization Table status:", notarization_table.table_status)
+except botocore.exceptions.ClientError as e:
+    print(e.response['Error']['Code'])
+    # account_table = dynamodb.Table('Notarization')
+    # account_table.delete()
