@@ -51,7 +51,8 @@ def register_account():
     Account registration
     """
     account_service = AccountDbService()
-    # request.method == 'POST'
+    if request.method == 'POST':
+        account_service.create_account(request.data)
     return {}
 
 

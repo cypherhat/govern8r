@@ -71,6 +71,9 @@ class NotaryWallet(object):
     def get_public_key(self):
         return self.public_key
 
+    def get_public_key_hex(self):
+        return self.public_key.encode("hex")
+
     def get_bitcoin_address(self):
         return self.address
 

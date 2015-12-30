@@ -5,6 +5,7 @@ wallet = NotaryWallet()
 
 print("\nWallet Private Key %s" % wallet.get_private_key())
 print("\nWallet Public Key %s" % wallet.get_public_key())
+print("\nWallet Public Key Hex %s" % wallet.get_public_key_hex())
 print("\nWallet Private Key WIF %s" % wallet.get_private_key_wif())
 print("\nWallet Address %s" % wallet.get_bitcoin_address())
 
