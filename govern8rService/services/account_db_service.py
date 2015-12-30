@@ -54,7 +54,7 @@ class AccountDbService(object):
         if not self._check_account(account):
             return False
         # Checks that a account with same values has not already been stored in db
-        if (self.get_account_by_public_key(account.public_key) is None) and (self.get_account_by_email(account.email) is None):
+        if (self.get_account_by_public_key(account.public_key) is None):
             # Creates the account in db
             return True
         else:
@@ -100,15 +100,7 @@ class AccountDbService(object):
         response = self.account_table.query(KeyConditionExpression=Key('public_key').eq(public_key))
 
         return None
-    
-    def get_account_by_email(self, addr):
-        '''
-        Gets a account associated to a given  email
-        Parameters:
-            addr =  email
-        '''
-        return None
-    
+
     def _check_account(self, account):
         if (account is None) or (not account.public_key) or (not account.email):
             return False
