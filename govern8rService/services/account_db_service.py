@@ -86,6 +86,7 @@ class AccountDbService(object):
             # Creates the account in db
             account['nonce'] = self.generate_nonce()
             account['created'] = datetime.now().isoformat(' ')
+            account['status'] = 'PENDING'
             self.account_table.put_item(Item=account)
             return True
         else:
