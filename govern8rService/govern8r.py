@@ -1,6 +1,7 @@
 from flask import request, Response, json
 from flask_api import FlaskAPI, status, exceptions
 from wallet import NotaryWallet
+from services.account_db_service import AccountDbService
 
 
 app = FlaskAPI(__name__)
@@ -32,7 +33,7 @@ def challenge(address):
         return ""
 
     # request.method == 'GET'
-    return ""
+    return {}
 
 
 @app.route("/govern8r/api/v1/account/<address>", methods=['GET'])
@@ -41,16 +42,17 @@ def account(address):
     Account registration
     """
     # request.method == 'POST'
-    return ""
+    return {}
 
 
-@app.route("/govern8r/api/v1/account", methods=['POST'])
+@app.route("/govern8r/api/v1/account", methods=['GET', 'POST'])
 def register_account():
     """
     Account registration
     """
+    account_service = AccountDbService()
     # request.method == 'POST'
-    return ""
+    return {}
 
 
 @app.route("/govern8r/api/v1/account/<address>/notarization/<document_hash>", methods=['PUT'])
@@ -60,7 +62,7 @@ def notarization(address, document_hash):
     """
 
     # request.method == 'PUT'
-    return ""
+    return {}
 
 
 @app.route("/govern8r/api/v1/account/<address>/notarization/<document_hash>/status", methods=['GET'])
@@ -70,7 +72,7 @@ def notarization_status(address, document_hash):
     """
 
     # request.method == 'GET'
-    return ""
+    return {}
 
 
 if __name__ == "__main__":
