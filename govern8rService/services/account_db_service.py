@@ -8,6 +8,7 @@ import hashlib
 import os
 import random
 import time
+from bitcoinlib.core.key import CPubKey
 
 
 def to_bytes(x): return x if bytes == str else x.encode()
@@ -86,14 +87,14 @@ class AccountDbService(object):
         if self.get_account_by_public_key(account['public_key']) is None:
             # Creates the account in db
             client_public_key = account['public_key']
-            print("\nPublic Key Hex %s" % client_public_key)
             decoded = client_public_key.decode("hex")
-            print("\nPublic Key %s" % decoded)
+            pubkey = CPubKey(decoded)
+            address = P2PKHBitcoinAddress.from_pubkey(pubkey)
 
             account['nonce'] = self.generate_nonce()
             account['created'] = datetime.now().isoformat(' ')
             account['status'] = 'PENDING'
-            account['address'] = P2PKHBitcoinAddress.from_pubkey(decoded)
+            account['address'] = str(address)
             self.account_table.put_item(Item=account)
             return True
         else:
