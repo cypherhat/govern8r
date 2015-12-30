@@ -12,6 +12,7 @@ class AccountDbService(object):
         self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
         try:
             self.account_table = self.dynamodb.Table('Account')
+            print(self.account_table.table_status)
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == 'ResourceNotFoundException':
                 self.create_account_table()
@@ -54,8 +55,9 @@ class AccountDbService(object):
         if not self._check_account(account):
             return False
         # Checks that a account with same values has not already been stored in db
-        if self.get_account_by_public_key(account.public_key) is None:
+        if self.get_account_by_public_key(account['public_key']) is None:
             # Creates the account in db
+            self.account_table.put_item(Item=account)
             return True
         else:
             return False         
@@ -96,13 +98,15 @@ class AccountDbService(object):
         Parameters:
             public_key = account id
         '''
-
         response = self.account_table.query(KeyConditionExpression=Key('public_key').eq(public_key))
 
-        return None
+        if len(response['Items']) == 0:
+            return None
+        else:
+            return response['Items'][0]
 
     def _check_account(self, account):
-        if (account is None) or (not account.public_key) or (not account.email):
+        if (account is None) or (not account['public_key']) or (not account['email']):
             return False
         else:
             return True        
