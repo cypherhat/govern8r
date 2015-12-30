@@ -1,6 +1,11 @@
 import encrypt
 from wallet import NotaryWallet
-from bitcoinlib.wallet import P2PKHBitcoinAddress
+from base58 import base58_check_encode
+import os
+from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
+
+def privateKeyToWif(key_hex):
+    return base58_check_encode(0x80, key_hex.decode('hex'))
 
 wallet = NotaryWallet()
 
@@ -32,3 +37,20 @@ signature = wallet.sign(message)
 
 print("\nSignature: %s" % signature)
 print("\nVerified: %s" % wallet.verify(message, signature))
+
+test1_raw_hex = '3e52050b58e1765ca9abfce576aa0efc27eaa4dd11a4051affabd050e6b92324'
+test1_private_key_wif = privateKeyToWif(test1_raw_hex)
+test1_key = CBitcoinSecret(test1_private_key_wif)
+test1_pub = test1_key.pub
+
+test2_private_key_wif = wallet.get_private_key_wif()
+test2_key = wallet.get_private_key()
+test2_pub = test2_key.pub
+
+message = "foobar"
+print("\nClear: %s" % message)
+encrypted = encrypt.encrypt(test1_pub, message)
+print("\nEncrypted1: %s" % encrypted)
+
+decrypted = encrypt.decrypt(test1_private_key_wif, encrypted)
+print("\nDecrypted1: %s" % decrypted)
