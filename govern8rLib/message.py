@@ -2,6 +2,7 @@ import encrypt
 from wallet import NotaryWallet
 from bitcoinlib.wallet import P2PKHBitcoinAddress
 from bitcoinlib.signmessage import VerifyMessage, BitcoinMessage
+from bitcoinlib.core.key import CPubKey
 
 
 class SecureMessage(object):
