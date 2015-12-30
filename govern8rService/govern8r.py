@@ -1,5 +1,5 @@
 from flask import request, Response, json
-from flask_api import FlaskAPI, status, exceptions
+from flask_api import FlaskAPI
 from wallet import NotaryWallet
 from services.account_db_service import AccountDbService
 
@@ -42,6 +42,15 @@ def account(address):
     Account registration
     """
     # request.method == 'POST'
+    return {}
+
+
+@app.route("/govern8r/api/v1/account/<address>/<nonce>", methods=['GET'])
+def confirm_account(address, nonce):
+    """
+    Account registration confirmation
+    """
+    # request.method == 'GET'
     return {}
 
 

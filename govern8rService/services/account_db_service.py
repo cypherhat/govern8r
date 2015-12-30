@@ -2,6 +2,7 @@ from __future__ import print_function # Python 2/3 compatibility
 import boto3
 import botocore
 from boto3.dynamodb.conditions import Key
+from bitcoinlib.wallet import P2PKHBitcoinAddress
 from datetime import datetime
 import hashlib
 import os
@@ -84,9 +85,15 @@ class AccountDbService(object):
         # Checks that a account with same values has not already been stored in db
         if self.get_account_by_public_key(account['public_key']) is None:
             # Creates the account in db
+            client_public_key = account['public_key']
+            print("\nPublic Key Hex %s" % client_public_key)
+            decoded = client_public_key.decode("hex")
+            print("\nPublic Key %s" % decoded)
+
             account['nonce'] = self.generate_nonce()
             account['created'] = datetime.now().isoformat(' ')
             account['status'] = 'PENDING'
+            account['address'] = P2PKHBitcoinAddress.from_pubkey(decoded)
             self.account_table.put_item(Item=account)
             return True
         else:
