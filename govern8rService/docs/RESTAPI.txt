@@ -113,7 +113,7 @@ RESOURCE: /govern8r/api/v1/account (POST)
 
 Request:
 { 
-	client_pubkey: "", ## Client's public key
+	public_key: "", ## Client's public key
 	email: ""  ## the email address for the account
 }
 
@@ -132,7 +132,7 @@ Request Header:
 
 Response: 
 { 
-	address: "", ## Bitcoin address
+	public_key: "", ## client's public key
 	email: "",  ## the email address for the account
 	date_created: "" ## the date the user was created
 }

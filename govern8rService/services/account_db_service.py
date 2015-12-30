@@ -1,7 +1,7 @@
-'''
-A class simulating a wrapper to access a database storing Accounts.
-For this toy project, we store Accounts in memory.
-'''
+from __future__ import print_function # Python 2/3 compatibility
+import boto3
+import botocore
+
 
 class AccountDbService(object):
     
@@ -9,7 +9,43 @@ class AccountDbService(object):
         # Initializes some dictionaries to store accounts
         self._accounts_by_uid = dict()
         self._accounts_by_addr = dict()
-        
+        self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
+        try:
+            self.account_table = self.dynamodb.Table('Account')
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == 'ResourceNotFoundException':
+                self.create_account_table()
+
+
+
+    def create_account_table(self):
+        try:
+            self.account_table = self.dynamodb.create_table(
+                TableName='Account',
+                KeySchema=[
+                    {
+                        'AttributeName': 'public_key',
+                        'KeyType': 'HASH'
+                    }
+                ],
+                AttributeDefinitions=[
+                    {
+                        'AttributeName': 'public_key',
+                        'AttributeType': 'S'
+                    }
+                ],
+                ProvisionedThroughput={
+                    'ReadCapacityUnits': 10,
+                    'WriteCapacityUnits': 10
+                }
+            )
+
+            print("Account Table status:", account_table.table_status)
+        except botocore.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == 'ResourceInUseException':
+                print("Houston, we have a problem: the Account Table exists.")
+
+
     
     def create_account(self, account):
         '''
