@@ -11,5 +11,7 @@ print("\nWallet Public Key Hex %s" % wallet.get_public_key_hex())
 print("\nWallet Public Key %s" % wallet.get_public_key())
 addrfromhex = P2PKHBitcoinAddress.from_pubkey(wallet.get_public_key_hex().decode("hex"))
 print("\nAddress From Hex %s" % addrfromhex)
+email = 'jeff@foobar.com'
+signature = wallet.sign(email)
 
-req_account = requests.post('http://127.0.0.1:5000/govern8r/api/v1/account', data={'public_key': wallet.get_public_key_hex(), 'email': 'jeff@foobar.com'})
+req_account = requests.post('http://127.0.0.1:5000/govern8r/api/v1/account', data={'public_key': wallet.get_public_key_hex(), 'signature': signature, 'email': email})

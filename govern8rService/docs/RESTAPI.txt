@@ -114,6 +114,7 @@ RESOURCE: /govern8r/api/v1/account (POST)
 Request:
 { 
 	public_key: "", ## Client's public key
+    signature: "", ## the signature of the email address
 	email: ""  ## the email address for the account
 }
 

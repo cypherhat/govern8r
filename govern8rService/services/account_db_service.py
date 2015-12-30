@@ -2,6 +2,7 @@ from __future__ import print_function # Python 2/3 compatibility
 import boto3
 import botocore
 from boto3.dynamodb.conditions import Key
+from bitcoinlib.signmessage import VerifyMessage, BitcoinMessage
 from bitcoinlib.wallet import P2PKHBitcoinAddress
 from datetime import datetime
 import hashlib
@@ -90,13 +91,17 @@ class AccountDbService(object):
             decoded = client_public_key.decode("hex")
             pubkey = CPubKey(decoded)
             address = P2PKHBitcoinAddress.from_pubkey(pubkey)
-
-            account['nonce'] = self.generate_nonce()
-            account['created'] = datetime.now().isoformat(' ')
-            account['status'] = 'PENDING'
-            account['address'] = str(address)
-            self.account_table.put_item(Item=account)
-            return True
+            signature = account['signature']
+            message = BitcoinMessage(account['email'])
+            if VerifyMessage(address, message, signature):
+                account['nonce'] = self.generate_nonce()
+                account['created'] = datetime.now().isoformat(' ')
+                account['status'] = 'PENDING'
+                account['address'] = str(address)
+                self.account_table.put_item(Item=account)
+                return True
+            else:
+                return False
         else:
             return False         
 

@@ -56,8 +56,8 @@
       <file leaf-file-name="wallet.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/wallet.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.12796208">
-              <caret line="56" column="20" selection-start-line="56" selection-start-column="20" selection-end-line="56" selection-end-column="20" />
+            <state vertical-scroll-proportion="0.21800947">
+              <caret line="59" column="49" selection-start-line="59" selection-start-column="49" selection-end-line="59" selection-end-column="49" />
               <folding>
                 <element signature="e#0#19#0" expanded="true" />
               </folding>
@@ -106,8 +106,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="40" />
-    <option name="y" value="72" />
+    <option name="x" value="49" />
+    <option name="y" value="77" />
     <option name="width" value="1400" />
     <option name="height" value="740" />
   </component>
@@ -303,8 +303,8 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="40" y="72" width="1400" height="740" extended-state="0" />
-    <editor active="false" />
+    <frame x="49" y="77" width="1400" height="740" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -523,8 +523,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wallet.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.12796208">
-          <caret line="56" column="20" selection-start-line="56" selection-start-column="20" selection-end-line="56" selection-end-column="20" />
+        <state vertical-scroll-proportion="0.21800947">
+          <caret line="59" column="49" selection-start-line="59" selection-start-column="49" selection-end-line="59" selection-end-column="49" />
           <folding>
             <element signature="e#0#19#0" expanded="true" />
           </folding>
