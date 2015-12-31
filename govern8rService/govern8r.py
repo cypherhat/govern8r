@@ -65,7 +65,8 @@ def confirm_account(address, nonce):
     """
     Account registration confirmation
     """
-    # request.method == 'GET'
+    if request.method == 'GET':
+        account_service.confirm_account(address, nonce)
     return {}
 
 

@@ -99,24 +99,42 @@ class AccountDbService(object):
                 account['status'] = 'PENDING'
                 account['address'] = str(address)
                 self.account_table.put_item(Item=account)
+                self.send_confirmation_email(account)
                 return True
             else:
                 return False
         else:
             return False
 
-    def update_account(self, account):
+    def send_confirmation_email(self, account):
+        confirmation_url = 'http://127.0.0.1:5000/govern8r/api/v1/account/'+account['address']+'/'+account['nonce']
+        print(confirmation_url)
+        return True
+
+    def update_account_status(self, account, new_status):
+        response = self.account_table.update_item(
+            Key={
+                'address': account['address']
+            },
+            UpdateExpression="set status = :_status",
+            ExpressionAttributeValues={
+                ':_status': new_status
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+
+    def confirm_account(self, address, nonce):
         '''
         Update a account entry in db
         Parameters:
             account = Account object to update in db
         '''
         # Checks parameter
-        if not self._check_account(account):
-            return False
-        # Checks that a account with same values exists in db
-        if not self.get_account_by_public_key(account.public_key) is None:
+        account = self.get_account_by_address(address)
+        if not account is None and account['nonce'] == nonce and account['status'] != 'CONFIRMED':
+            self.update_account_status(account, 'CONFIRMED')
             # Updates the account in db
+
             return True
         else:
             return False        

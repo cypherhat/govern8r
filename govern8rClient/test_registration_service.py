@@ -21,16 +21,10 @@ print("\nWallet Public Key Hex %s" % wallet.get_public_key_hex())
 print("\nWallet Public Key %s" % wallet.get_public_key())
 addrfromhex = P2PKHBitcoinAddress.from_pubkey(wallet.get_public_key_hex().decode("hex"))
 print("\nAddress From Hex %s" % addrfromhex)
-email = 'raju@foobar.com'
+email = 'amanda@foobar.com'
 
 registration_message = {'public_key': wallet.get_public_key_hex(), 'email': email}
 
 registration_payload = secure_message.create_secure_payload(other_party_public_key, json.dumps(registration_message))
 response = requests.put('http://127.0.0.1:5000/govern8r/api/v1/account/'+address, data=registration_payload)
 print(response.status_code)
-## Test PUT challenge
-
-#testmessage = {'name': 'value'}
-#str_message = str(testmessage)
-#payload = secure_message.create_secure_payload(other_party_public_key, str_message)
-#resp = requests.put('http://127.0.0.1:5000/govern8r/api/v1/challenge/'+address, data=payload)
