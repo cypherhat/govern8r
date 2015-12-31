@@ -38,7 +38,7 @@ class AccountDbService(object):
         Checks if nonce has expired
         '''
         delta = datetime.now() - self.created
-        return delta.total_seconds() > Nonce.EXPIRATION_DELAY
+        return delta.total_seconds() > EXPIRATION_DELAY
 
     def generate_nonce(self):
         '''
@@ -75,7 +75,7 @@ class AccountDbService(object):
             if e.response['Error']['Code'] == 'ResourceInUseException':
                 print("Houston, we have a problem: the Account Table exists.")
     
-    def create_account(self, account):
+    def create_account(self, address, account):
         '''
         Create a account entry in db
         Parameters:
@@ -85,17 +85,15 @@ class AccountDbService(object):
         if not self._check_account(account):
             return False
         # Checks that a account with same values has not already been stored in db
-        client_public_key = account['public_key']
-        decoded = client_public_key.decode("hex")
-        pubkey = CPubKey(decoded)
-        rawaddress = P2PKHBitcoinAddress.from_pubkey(pubkey)
-        address = str(rawaddress)
 
         if self.get_account_by_address(address) is None:
             # Creates the account in db
-            signature = account['signature']
-            message = BitcoinMessage(account['email'])
-            if VerifyMessage(address, message, signature):
+            client_public_key = account['public_key']
+            decoded = client_public_key.decode("hex")
+            pubkey = CPubKey(decoded)
+            raw_address = P2PKHBitcoinAddress.from_pubkey(pubkey)
+            derived_address = str(raw_address)
+            if derived_address == address:
                 account['nonce'] = self.generate_nonce()
                 account['created'] = datetime.now().isoformat(' ')
                 account['status'] = 'PENDING'
@@ -105,7 +103,7 @@ class AccountDbService(object):
             else:
                 return False
         else:
-            return False         
+            return False
 
     def update_account(self, account):
         '''
