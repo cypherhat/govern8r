@@ -66,6 +66,7 @@ def challenge(address):
             return bad_response
     return bad_response
 
+
 @app.route("/govern8r/api/v1/account/<address>", methods=['GET', 'PUT'])
 def account(address):
     """
