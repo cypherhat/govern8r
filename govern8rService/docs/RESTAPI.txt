@@ -109,16 +109,13 @@ Response Header:
 
 # Registration API
 
-RESOURCE: /govern8r/api/v1/account (POST)
+RESOURCE: /govern8r/api/v1/account/<address> (PUT)
 
 Request:
 { 
 	public_key: "", ## Client's public key
-    signature: "", ## the signature of the email address
 	email: ""  ## the email address for the account
 }
-
-## Note: server side this is a different signature validate flow
 
 Response: 
 { 
@@ -137,6 +134,15 @@ Response:
 	email: "",  ## the email address for the account
 	date_created: "" ## the date the user was created
 }
+
+# Confirmation
+
+RESOURCE: /govern8r/api/v1/account/<address>/<nonce> (GET)
+
+Response:
+{
+}
+
 
 RESOURCE: /govern8r/api/v1/account/<address>/notarization/<document_hash> (PUT)
 

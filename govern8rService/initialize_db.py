@@ -15,20 +15,21 @@ try:
         TableName='Account',
         KeySchema=[
             {
-                'AttributeName': 'public_key',
+                'AttributeName': 'address',
                 'KeyType': 'HASH'
             }
         ],
         AttributeDefinitions=[
             {
-                'AttributeName': 'public_key',
+                'AttributeName': 'address',
                 'AttributeType': 'S'
-            }
+            },
         ],
         ProvisionedThroughput={
             'ReadCapacityUnits': 10,
             'WriteCapacityUnits': 10
         }
+
     )
 
     print("Account Table status:", account_table.table_status)

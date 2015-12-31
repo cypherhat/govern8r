@@ -2,7 +2,6 @@ from __future__ import print_function # Python 2/3 compatibility
 import boto3
 import botocore
 from boto3.dynamodb.conditions import Key
-from bitcoinlib.signmessage import VerifyMessage, BitcoinMessage
 from bitcoinlib.wallet import P2PKHBitcoinAddress
 from datetime import datetime
 import hashlib
@@ -38,7 +37,7 @@ class AccountDbService(object):
         Checks if nonce has expired
         '''
         delta = datetime.now() - self.created
-        return delta.total_seconds() > Nonce.EXPIRATION_DELAY
+        return delta.total_seconds() > EXPIRATION_DELAY
 
     def generate_nonce(self):
         '''
@@ -55,15 +54,15 @@ class AccountDbService(object):
                 TableName='Account',
                 KeySchema=[
                     {
-                        'AttributeName': 'public_key',
+                        'AttributeName': 'address',
                         'KeyType': 'HASH'
                     }
                 ],
                 AttributeDefinitions=[
                     {
-                        'AttributeName': 'public_key',
+                        'AttributeName': 'address',
                         'AttributeType': 'S'
-                    }
+                    },
                 ],
                 ProvisionedThroughput={
                     'ReadCapacityUnits': 10,
@@ -75,7 +74,7 @@ class AccountDbService(object):
             if e.response['Error']['Code'] == 'ResourceInUseException':
                 print("Houston, we have a problem: the Account Table exists.")
     
-    def create_account(self, account):
+    def create_account(self, address, account):
         '''
         Create a account entry in db
         Parameters:
@@ -85,38 +84,56 @@ class AccountDbService(object):
         if not self._check_account(account):
             return False
         # Checks that a account with same values has not already been stored in db
-        if self.get_account_by_public_key(account['public_key']) is None:
+
+        if self.get_account_by_address(address) is None:
             # Creates the account in db
             client_public_key = account['public_key']
             decoded = client_public_key.decode("hex")
             pubkey = CPubKey(decoded)
-            address = P2PKHBitcoinAddress.from_pubkey(pubkey)
-            signature = account['signature']
-            message = BitcoinMessage(account['email'])
-            if VerifyMessage(address, message, signature):
+            raw_address = P2PKHBitcoinAddress.from_pubkey(pubkey)
+            derived_address = str(raw_address)
+            if derived_address == address:
                 account['nonce'] = self.generate_nonce()
                 account['created'] = datetime.now().isoformat(' ')
-                account['status'] = 'PENDING'
+                account['account_status'] = 'PENDING'
                 account['address'] = str(address)
                 self.account_table.put_item(Item=account)
+                self.send_confirmation_email(account)
                 return True
             else:
                 return False
         else:
-            return False         
+            return False
 
-    def update_account(self, account):
+    def send_confirmation_email(self, account):
+        confirmation_url = 'http://127.0.0.1:5000/govern8r/api/v1/account/'+account['address']+'/'+account['nonce']
+        print(confirmation_url)
+        return True
+
+    def update_account_status(self, account, new_status):
+        response = self.account_table.update_item(
+            Key={
+                'address': account['address']
+            },
+            UpdateExpression="set account_status = :_status",
+            ExpressionAttributeValues={
+                ':_status': new_status
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+
+    def confirm_account(self, address, nonce):
         '''
         Update a account entry in db
         Parameters:
             account = Account object to update in db
         '''
         # Checks parameter
-        if not self._check_account(account):
-            return False
-        # Checks that a account with same values exists in db
-        if not self.get_account_by_public_key(account.public_key) is None:
+        account = self.get_account_by_address(address)
+        if not account is None and account['nonce'] == nonce and account['account_status'] != 'CONFIRMED':
+            self.update_account_status(account, 'CONFIRMED')
             # Updates the account in db
+
             return True
         else:
             return False        
@@ -142,6 +159,19 @@ class AccountDbService(object):
             public_key = account id
         '''
         response = self.account_table.query(KeyConditionExpression=Key('public_key').eq(public_key))
+
+        if len(response['Items']) == 0:
+            return None
+        else:
+            return response['Items'][0]
+
+    def get_account_by_address(self, address):
+        '''
+        Gets a account associated to a given account id
+        Parameters:
+            address = account id
+        '''
+        response = self.account_table.query(KeyConditionExpression=Key('address').eq(address))
 
         if len(response['Items']) == 0:
             return None
