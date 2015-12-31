@@ -10,6 +10,17 @@ wallet = NotaryWallet()
 account_service = AccountDbService()
 
 
+def build_fingerprint():
+    fingerprint = request.user_agent+request.remote_addr
+    return fingerprint
+
+
+def build_token(nonce):
+    token = ''
+    # token = hash(hash(build_fingerprint()) + hash(nonce))
+    return token
+
+
 @app.route("/govern8r/api/v1/pubkey", methods=['GET'])
 def pubkey():
     """
