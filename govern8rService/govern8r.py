@@ -1,12 +1,13 @@
 from flask import request, Response, json
 from flask_api import FlaskAPI
 from wallet import NotaryWallet
+from message import SecureMessage
 from services.account_db_service import AccountDbService
 
 
 app = FlaskAPI(__name__)
 wallet = NotaryWallet()
-
+account_service = AccountDbService()
 
 @app.route("/govern8r/api/v1/pubkey", methods=['GET'])
 def pubkey():
@@ -29,8 +30,11 @@ def challenge(address):
     """
     Authentication
     """
+    payload = request.data
+
     if request.method == 'PUT':
-        return ""
+        account = account_service.get_account_by_address(address)
+        return {}
 
     # request.method == 'GET'
     return {}
@@ -59,7 +63,7 @@ def register_account():
     """
     Account registration
     """
-    account_service = AccountDbService()
+
     if request.method == 'POST':
         account_service.create_account(request.data)
     return {}

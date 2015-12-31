@@ -85,12 +85,14 @@ class AccountDbService(object):
         if not self._check_account(account):
             return False
         # Checks that a account with same values has not already been stored in db
-        if self.get_account_by_public_key(account['public_key']) is None:
+        client_public_key = account['public_key']
+        decoded = client_public_key.decode("hex")
+        pubkey = CPubKey(decoded)
+        rawaddress = P2PKHBitcoinAddress.from_pubkey(pubkey)
+        address = str(rawaddress)
+
+        if self.get_account_by_address(address) is None:
             # Creates the account in db
-            client_public_key = account['public_key']
-            decoded = client_public_key.decode("hex")
-            pubkey = CPubKey(decoded)
-            address = P2PKHBitcoinAddress.from_pubkey(pubkey)
             signature = account['signature']
             message = BitcoinMessage(account['email'])
             if VerifyMessage(address, message, signature):
@@ -142,6 +144,19 @@ class AccountDbService(object):
             public_key = account id
         '''
         response = self.account_table.query(KeyConditionExpression=Key('public_key').eq(public_key))
+
+        if len(response['Items']) == 0:
+            return None
+        else:
+            return response['Items'][0]
+
+    def get_account_by_address(self, address):
+        '''
+        Gets a account associated to a given account id
+        Parameters:
+            address = account id
+        '''
+        response = self.account_table.query(KeyConditionExpression=Key('address').eq(address))
 
         if len(response['Items']) == 0:
             return None
