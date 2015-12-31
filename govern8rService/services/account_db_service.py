@@ -2,7 +2,6 @@ from __future__ import print_function # Python 2/3 compatibility
 import boto3
 import botocore
 from boto3.dynamodb.conditions import Key
-from bitcoinlib.signmessage import VerifyMessage, BitcoinMessage
 from bitcoinlib.wallet import P2PKHBitcoinAddress
 from datetime import datetime
 import hashlib
@@ -55,15 +54,15 @@ class AccountDbService(object):
                 TableName='Account',
                 KeySchema=[
                     {
-                        'AttributeName': 'public_key',
+                        'AttributeName': 'address',
                         'KeyType': 'HASH'
                     }
                 ],
                 AttributeDefinitions=[
                     {
-                        'AttributeName': 'public_key',
+                        'AttributeName': 'address',
                         'AttributeType': 'S'
-                    }
+                    },
                 ],
                 ProvisionedThroughput={
                     'ReadCapacityUnits': 10,
@@ -96,7 +95,7 @@ class AccountDbService(object):
             if derived_address == address:
                 account['nonce'] = self.generate_nonce()
                 account['created'] = datetime.now().isoformat(' ')
-                account['status'] = 'PENDING'
+                account['account_status'] = 'PENDING'
                 account['address'] = str(address)
                 self.account_table.put_item(Item=account)
                 self.send_confirmation_email(account)
@@ -116,7 +115,7 @@ class AccountDbService(object):
             Key={
                 'address': account['address']
             },
-            UpdateExpression="set status = :_status",
+            UpdateExpression="set account_status = :_status",
             ExpressionAttributeValues={
                 ':_status': new_status
             },
@@ -131,7 +130,7 @@ class AccountDbService(object):
         '''
         # Checks parameter
         account = self.get_account_by_address(address)
-        if not account is None and account['nonce'] == nonce and account['status'] != 'CONFIRMED':
+        if not account is None and account['nonce'] == nonce and account['account_status'] != 'CONFIRMED':
             self.update_account_status(account, 'CONFIRMED')
             # Updates the account in db
 
