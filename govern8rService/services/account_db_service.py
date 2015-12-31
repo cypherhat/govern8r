@@ -122,6 +122,30 @@ class AccountDbService(object):
             ReturnValues="UPDATED_NEW"
         )
 
+    def update_account_nonce(self, account, new_nonce):
+        response = self.account_table.update_item(
+            Key={
+                'address': account['address']
+            },
+            UpdateExpression="set nonce = :_nonce",
+            ExpressionAttributeValues={
+                ':_nonce': new_nonce
+            },
+            ReturnValues="UPDATED_NEW"
+        )
+
+    def get_challenge(self, address):
+        account = self.get_account_by_address(address)
+        if account is None or account['account_status'] != 'CONFIRMED':
+            return {}
+        else:
+            new_nonce = self.generate_nonce()
+            self.update_account_nonce(account, new_nonce)
+
+
+
+
+
     def confirm_account(self, address, nonce):
         '''
         Update a account entry in db

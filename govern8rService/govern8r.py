@@ -31,7 +31,9 @@ def challenge(address):
     """
     Authentication
     """
-    # request.method == 'GET'
+    if request.method == 'GET':
+        account_service.get_challenge(address)
+
     return {}
 
 
