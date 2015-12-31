@@ -32,7 +32,14 @@ def challenge(address):
     Authentication
     """
     if request.method == 'GET':
-        account_service.get_challenge(address)
+        challenge_json = account_service.get_challenge(address)
+        if challenge_json is None:
+            js = json.dumps({})
+            resp = Response(js, status=500, mimetype='application/json')
+            return resp
+        else:
+            nonce = json.dumps(challenge_json)
+            secure_message = SecureMessage()
 
     return {}
 
