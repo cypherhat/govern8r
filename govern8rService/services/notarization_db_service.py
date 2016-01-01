@@ -1,11 +1,5 @@
-'''
-A class simulating a wrapper to access a database storing bitcoin transactions "received" by the website.
-For an e-retailer it could be a db storing bitcoin transactions sent by customers buying products.
-For others use cases it could be a db storing bitcoin micro-transactions sent to a given address by people who want to register.
+import blockcypher
 
-This database (or service) should allow to check if a given address has sent a transaction to my site.
-The goal is to prevent abuses flooding the users database by checking a proof of goodwill (payment, purchase, burn...)
-'''
 
 class NotarizationDbService(object):
     

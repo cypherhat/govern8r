@@ -82,7 +82,9 @@ This probably should be done using JSON Web Tokens. That said, this is simple en
 	a. Server constructs client fingerprint (user agent + ???)
 	b. Server retrieves nonce associated with client address
 	c. Server computes hash(hash(fingerprint) + hash(nonce))
-	d. If govern8r_token cookie matches the hash, user is authenticated... 
+	d. If govern8r_token cookie matches the hash, user is authenticated...
+	e. authentication token is regenerated after every auth... token rotation! Client must take
+	   care to store the cookie each time.
 
 
 
