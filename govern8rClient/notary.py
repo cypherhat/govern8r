@@ -78,7 +78,7 @@ def notarize_file(path_to_file):
     print path_to_file
 
 if __name__ == "__main__":
-     main()
+    main()
 
 
 
