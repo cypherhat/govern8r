@@ -60,8 +60,8 @@ def register_user(email):
 
     print("\nWallet Public Key Hex %s" % wallet.get_public_key_hex())
     print("\nWallet Public Key %s" % wallet.get_public_key())
-    addrfromhex = P2PKHBitcoinAddress.from_pubkey(wallet.get_public_key_hex().decode("hex"))
-    print("\nAddress From Hex %s" % addrfromhex)
+    address_from_hex = P2PKHBitcoinAddress.from_pubkey(wallet.get_public_key_hex().decode("hex"))
+    print("\nAddress From Hex %s" % address_from_hex)
 
     registration_message = {'public_key': wallet.get_public_key_hex(), 'email': email}
 
