@@ -51,6 +51,7 @@ def challenge(address):
     """
     js = json.dumps({})
     bad_response = Response(js, status=500, mimetype='application/json')
+    bad_response.set_cookie('govern8r_token', 'UNAUTHENTICATED')
 
     secure_message = SecureMessage()
     if request.method == 'GET':
