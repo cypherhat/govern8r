@@ -56,7 +56,7 @@ class Notary(object):
     def authenticated(self):
         return self.govenr8r_token != 'UNAUTHENTICATED'
 
-    def notarize_file(self, path_to_file):
+    def notarize_file(self, path_to_file, metadata):
         if self.authenticated():
             hash_digest = hashfile.hash_file(path_to_file)
         print path_to_file
