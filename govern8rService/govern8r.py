@@ -4,6 +4,7 @@ from wallet import NotaryWallet
 from message import SecureMessage
 from services.account_db_service import AccountDbService
 from message import SecureMessage
+import hashlib
 
 app = FlaskAPI(__name__)
 wallet = NotaryWallet()
@@ -11,14 +12,20 @@ account_service = AccountDbService()
 
 
 def build_fingerprint():
-    fingerprint = request.user_agent+request.remote_addr
+    fingerprint = str(request.user_agent)+str(request.remote_addr)
     return fingerprint
 
 
 def build_token(nonce):
-    token = ''
-    # token = hash(hash(build_fingerprint()) + hash(nonce))
-    return token
+    nonce_hash = hashlib.sha256(nonce).digest()
+    fingerprint_hash = hashlib.sha256(build_fingerprint()).digest()
+    token = hashlib.sha256(nonce_hash + fingerprint_hash).digest()
+    return token.encode("hex")
+
+
+def validate_token(nonce, token):
+    check_token = build_token(nonce)
+    return check_token == token
 
 
 @app.route("/govern8r/api/v1/pubkey", methods=['GET'])
@@ -61,9 +68,11 @@ def challenge(address):
         if secure_message.verify_secure_payload(address, payload):
             raw_message = secure_message.get_message_from_secure_payload(payload)
             message = json.loads(raw_message)
-            print("Incoming nonce: %s" % message['nonce'])
-            print("Nonce on record: %s" % account['nonce'])
-            return bad_response
+            if message['nonce'] == account['nonce']:
+                govern8r_token = build_token(account['nonce'])
+                good_response = Response(js, status=500, mimetype='application/json')
+                good_response.set_cookie('govern8r_token', value=govern8r_token)
+            return good_response
     return bad_response
 
 
