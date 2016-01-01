@@ -32,6 +32,7 @@ def authenticated(address):
     govern8r_token = request.cookies.get('govern8r_token')
     return validate_token(account_data['nonce'], govern8r_token)
 
+
 @app.route("/govern8r/api/v1/pubkey", methods=['GET'])
 def pubkey():
     """
@@ -171,7 +172,6 @@ def notarization_status(address, document_hash):
     document_hash : string
        The hash of the document.
     """
-
 
     js = json.dumps({})
     unauthenticated_response = Response(js, status=401, mimetype='application/json')
