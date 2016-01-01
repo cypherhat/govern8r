@@ -20,6 +20,23 @@ NONCE_LEN = 16
 EXPIRATION_DELAY = 600
 
 
+def has_expired(created):
+    delta = datetime.now() - created
+    return delta.total_seconds() > EXPIRATION_DELAY
+
+
+def generate_nonce():
+    entropy = str(os.urandom(32)) + str(random.randrange(2**256)) + str(int(time.time())**7)
+    return hashlib.sha256(to_bytes(entropy)).hexdigest()[:NONCE_LEN]
+
+
+def check_account(account):
+    if (account is None) or (not account['public_key']) or (not account['email']):
+        return False
+    else:
+        return True
+
+
 class AccountDbService(object):
 
     def __init__(self):
@@ -31,22 +48,6 @@ class AccountDbService(object):
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == 'ResourceNotFoundException':
                 self.create_account_table()
-
-    def has_expired(self):
-        '''
-        Checks if nonce has expired
-        '''
-        delta = datetime.now() - self.created
-        return delta.total_seconds() > EXPIRATION_DELAY
-
-    def generate_nonce(self):
-        '''
-        Generates a random nonce
-        Inspired from random_key() in https://github.com/vbuterin/pybitcointools/blob/master/bitcoin/main.py
-        Credits to https://github.com/vbuterin
-        '''
-        entropy = str(os.urandom(32)) + str(random.randrange(2**256)) + str(int(time.time())**7)
-        return hashlib.sha256(to_bytes(entropy)).hexdigest()[:NONCE_LEN]
 
     def create_account_table(self):
         try:
@@ -75,25 +76,17 @@ class AccountDbService(object):
                 print("Houston, we have a problem: the Account Table exists.")
     
     def create_account(self, address, account):
-        '''
-        Create a account entry in db
-        Parameters:
-            account = Account object to store in db
-        '''
-        # Checks parameter
-        if not self._check_account(account):
+        if not check_account(account):
             return False
-        # Checks that a account with same values has not already been stored in db
 
         if self.get_account_by_address(address) is None:
-            # Creates the account in db
             client_public_key = account['public_key']
             decoded = client_public_key.decode("hex")
             pubkey = CPubKey(decoded)
             raw_address = P2PKHBitcoinAddress.from_pubkey(pubkey)
             derived_address = str(raw_address)
             if derived_address == address:
-                account['nonce'] = self.generate_nonce()
+                account['nonce'] = generate_nonce()
                 account['created'] = datetime.now().isoformat(' ')
                 account['account_status'] = 'PENDING'
                 account['address'] = str(address)
@@ -111,7 +104,7 @@ class AccountDbService(object):
         return True
 
     def update_account_status(self, account, new_status):
-        response = self.account_table.update_item(
+        self.account_table.update_item(
             Key={
                 'address': account['address']
             },
@@ -123,7 +116,7 @@ class AccountDbService(object):
         )
 
     def update_account_nonce(self, account, new_nonce):
-        response = self.account_table.update_item(
+        self.account_table.update_item(
             Key={
                 'address': account['address']
             },
@@ -139,47 +132,29 @@ class AccountDbService(object):
         if account is None or account['account_status'] != 'CONFIRMED':
             return None
         else:
-            new_nonce = self.generate_nonce()
+            new_nonce = generate_nonce()
             account['nonce'] = new_nonce
             self.update_account_nonce(account, new_nonce)
             return account
 
     def confirm_account(self, address, nonce):
-        '''
-        Update a account entry in db
-        Parameters:
-            account = Account object to update in db
-        '''
-        # Checks parameter
         account = self.get_account_by_address(address)
-        if not account is None and account['nonce'] == nonce and account['account_status'] != 'CONFIRMED':
+        if account is not None and account['nonce'] == nonce and account['account_status'] != 'CONFIRMED':
             self.update_account_status(account, 'CONFIRMED')
-            # Updates the account in db
-
             return True
         else:
             return False        
     
     def delete_account(self, account):
-        '''
-        Delete a account entry from db
-        Parameters:
-            account = Account object to delete
-        '''
-        # Checks parameter
-        if account is None: return False
-        # Checks that a account with same values exists in db
+        if account is None:
+            return False
+
         if not self.get_account_by_public_key(account.public_key) is None:
             return True
         else:
             return False        
     
     def get_account_by_public_key(self, public_key):
-        '''
-        Gets a account associated to a given account id
-        Parameters:
-            public_key = account id
-        '''
         response = self.account_table.query(KeyConditionExpression=Key('public_key').eq(public_key))
 
         if len(response['Items']) == 0:
@@ -188,20 +163,9 @@ class AccountDbService(object):
             return response['Items'][0]
 
     def get_account_by_address(self, address):
-        '''
-        Gets a account associated to a given account id
-        Parameters:
-            address = account id
-        '''
         response = self.account_table.query(KeyConditionExpression=Key('address').eq(address))
 
         if len(response['Items']) == 0:
             return None
         else:
             return response['Items'][0]
-
-    def _check_account(self, account):
-        if (account is None) or (not account['public_key']) or (not account['email']):
-            return False
-        else:
-            return True
