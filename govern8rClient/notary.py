@@ -45,8 +45,6 @@ def main() :
         print "no command"
 
 
-
-
 def register_user(email):
 
     wallet = NotaryWallet()
@@ -65,7 +63,6 @@ def register_user(email):
     addrfromhex = P2PKHBitcoinAddress.from_pubkey(wallet.get_public_key_hex().decode("hex"))
     print("\nAddress From Hex %s" % addrfromhex)
 
-
     registration_message = {'public_key': wallet.get_public_key_hex(), 'email': email}
 
     registration_payload = secure_message.create_secure_payload(other_party_public_key, json.dumps(registration_message))
@@ -73,11 +70,12 @@ def register_user(email):
     print(response.status_code)
 
 
-def confirm_user(url):
-    print url
+def confirm_user(confirmation_url):
+    print confirmation_url
 
-def  notarize_file(file):
-    print file
+
+def notarize_file(path_to_file):
+    print path_to_file
 
 if __name__ == "__main__":
      main()
