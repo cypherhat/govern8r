@@ -1,7 +1,6 @@
 from flask import request, Response, json
 from flask_api import FlaskAPI
 from wallet import NotaryWallet
-from message import SecureMessage
 from services.account_db_service import AccountDbService
 from message import SecureMessage
 import hashlib
@@ -28,10 +27,16 @@ def validate_token(nonce, token):
     return check_token == token
 
 
+def authenticated(address):
+    account_data = account_service.get_account_by_address(address)
+    govern8r_token = request.cookies.get('govern8r_token')
+    return validate_token(account_data['nonce'], govern8r_token)
+
 @app.route("/govern8r/api/v1/pubkey", methods=['GET'])
 def pubkey():
     """
-    Return server public key. The key is encoded in hex and needs to be decoded from hex to be used by the encryption utility.
+    Return server public key. The key is encoded in hex and needs to be decoded
+    from hex to be used by the encryption utility.
     """
     # request.method == 'GET'
     public_key = wallet.get_public_key()
@@ -48,6 +53,10 @@ def pubkey():
 def challenge(address):
     """
     Authentication
+    Parameters
+    ----------
+    address : string
+       The Bitcoin address of the client.
     """
     js = json.dumps({})
     bad_response = Response(js, status=500, mimetype='application/json')
@@ -55,22 +64,22 @@ def challenge(address):
 
     secure_message = SecureMessage()
     if request.method == 'GET':
-        account = account_service.get_challenge(address)
-        if account is None:
+        account_data = account_service.get_challenge(address)
+        if account_data is None:
             return bad_response
-        str_nonce = json.dumps({'nonce': account['nonce']})
-        payload = secure_message.create_secure_payload(account['public_key'], str_nonce)
+        str_nonce = json.dumps({'nonce': account_data['nonce']})
+        payload = secure_message.create_secure_payload(account_data['public_key'], str_nonce)
         return payload
     elif request.method == 'PUT':
-        account = account_service.get_account_by_address(address)
-        if account is None:
+        account_data = account_service.get_account_by_address(address)
+        if account_data is None:
             return bad_response
         payload = request.data
         if secure_message.verify_secure_payload(address, payload):
             raw_message = secure_message.get_message_from_secure_payload(payload)
             message = json.loads(raw_message)
-            if message['nonce'] == account['nonce']:
-                govern8r_token = build_token(account['nonce'])
+            if message['nonce'] == account_data['nonce']:
+                govern8r_token = build_token(account_data['nonce'])
                 good_response = Response(js, status=500, mimetype='application/json')
                 good_response.set_cookie('govern8r_token', value=govern8r_token)
                 return good_response
@@ -81,6 +90,10 @@ def challenge(address):
 def account(address):
     """
     Account registration
+    Parameters
+    ----------
+    address : string
+       The Bitcoin address of the client.
     """
 
     good_response = Response(json.dumps({}), status=200, mimetype='application/json')
@@ -106,6 +119,12 @@ def account(address):
 def confirm_account(address, nonce):
     """
     Account registration confirmation
+    Parameters
+    ----------
+    address : string
+       The Bitcoin address of the client.
+    nonce : string
+       The nonce sent to the email address
     """
     if request.method == 'GET':
         account_service.confirm_account(address, nonce)
@@ -116,9 +135,17 @@ def confirm_account(address, nonce):
 def notarization(address, document_hash):
     """
     Notarize document
+    Parameters
+    ----------
+    address : string
+       The Bitcoin address of the client.
+    document_hash : string
+       The hash of the document.
     """
 
-    # request.method == 'PUT'
+    if request.method == 'PUT':
+        if authenticated(address):
+            pass
     return {}
 
 
@@ -126,6 +153,12 @@ def notarization(address, document_hash):
 def notarization_status(address, document_hash):
     """
     Notarization status
+    Parameters
+    ----------
+    address : string
+       The Bitcoin address of the client.
+    document_hash : string
+       The hash of the document.
     """
 
     # request.method == 'GET'
