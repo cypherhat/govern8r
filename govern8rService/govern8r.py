@@ -172,13 +172,19 @@ def notarization_status(address, document_hash):
        The hash of the document.
     """
 
+
     js = json.dumps({})
     unauthenticated_response = Response(js, status=401, mimetype='application/json')
     unauthenticated_response.set_cookie('govern8r_token', 'UNAUTHENTICATED')
 
-    if request.method == 'PUT':
+    if request.method == 'GET':
         if authenticated(address):
-            pass
+            account_data = account_service.get_challenge(address)  ## rotate authentication token
+            govern8r_token = build_token(account_data['nonce'])
+            js = json.dumps({})
+            authenticated_response = Response(js, status=200, mimetype='application/json')
+            authenticated_response.set_cookie('govern8r_token', govern8r_token)
+            return authenticated_response
         else:
             return unauthenticated_response
     return unauthenticated_response
