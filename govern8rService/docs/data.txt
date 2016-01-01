@@ -29,10 +29,33 @@ Notarization
 		coverage
 		rights
 	address
-	digest
+	file_digest
+	user_signature_on_file_digest
+	generated_meta_data
+	notary_signature_on_meta_data
 	transaction
 	status
 	date_created
 	date_confirmed
 
 We need Python code to do CRUD on these tables (boto3).
+
+Meta Data defintion
+   Meta data is a JSON data structure with these fields:
+           User First Name:
+           User Last  Name:
+           Location       :
+           File Digest    :
+           User Public Address:  ?? Public Key/Public Address
+           User Signature :
+           Date in GMT    :
+           Document Title :
+
+
+           The above will be signed by notarizer. And a JSON will be created
+           Meta Data:
+           Notarizer Public Address:  ?? Public Key/Public Address
+           Meta Data Signature :
+
+?? One problem with public Address is third party can't verify the signature without public key.
+Do we want third party to verify without the help of notarizer/end_user/ not?
