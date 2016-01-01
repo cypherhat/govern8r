@@ -69,6 +69,7 @@ def main():
     parser.add_argument("command", choices=['register', 'confirm', 'notary'], help="Name of the command.")
     parser.add_argument("-email", type=str, help="the email address of the registered user.")
     parser.add_argument("-file", type=file, help="Fully qualified name of the file to notarize.")
+    parser.add_argument("-metadata", type=file, help="File containing metadata of the file to notarize.")
     parser.add_argument("-confirm_url", type=str, help="Confirmation URL to confirm an account.")
     args = parser.parse_args()
     command = args.command
@@ -95,7 +96,8 @@ def main():
             print "notary command needs file"
         else:
             print args.file
-            notary.notarize_file(args.file)
+            print args.metadata
+            notary.notarize_file(args.file, args.metadata)
     else:
         print "no command"
 
