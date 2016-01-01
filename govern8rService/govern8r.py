@@ -73,7 +73,7 @@ def challenge(address):
                 govern8r_token = build_token(account['nonce'])
                 good_response = Response(js, status=500, mimetype='application/json')
                 good_response.set_cookie('govern8r_token', value=govern8r_token)
-            return good_response
+                return good_response
     return bad_response
 
 
