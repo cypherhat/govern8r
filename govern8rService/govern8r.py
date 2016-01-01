@@ -143,10 +143,20 @@ def notarization(address, document_hash):
        The hash of the document.
     """
 
+    js = json.dumps({})
+    unauthenticated_response = Response(js, status=401, mimetype='application/json')
+    unauthenticated_response.set_cookie('govern8r_token', 'UNAUTHENTICATED')
+
     if request.method == 'PUT':
         if authenticated(address):
-            pass
-    return {}
+            govern8r_token = request.cookies.get('govern8r_token')
+            js = json.dumps({})
+            authenticated_response = Response(js, status=200, mimetype='application/json')
+            authenticated_response.set_cookie('govern8r_token', govern8r_token)
+            return authenticated_response
+        else:
+            return unauthenticated_response
+    return unauthenticated_response
 
 
 @app.route("/govern8r/api/v1/account/<address>/notarization/<document_hash>/status", methods=['GET'])
@@ -161,11 +171,16 @@ def notarization_status(address, document_hash):
        The hash of the document.
     """
 
-    if request.method == 'GET':
+    js = json.dumps({})
+    unauthenticated_response = Response(js, status=401, mimetype='application/json')
+    unauthenticated_response.set_cookie('govern8r_token', 'UNAUTHENTICATED')
+
+    if request.method == 'PUT':
         if authenticated(address):
             pass
-
-    return {}
+        else:
+            return unauthenticated_response
+    return unauthenticated_response
 
 
 if __name__ == "__main__":
