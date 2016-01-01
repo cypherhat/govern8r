@@ -1,7 +1,7 @@
 from flask import request, Response, json
 from flask_api import FlaskAPI
 from wallet import NotaryWallet
-from services.account_db_service import AccountDbService
+from services.account_service import AccountDbService
 from message import SecureMessage
 import hashlib
 
