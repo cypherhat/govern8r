@@ -149,7 +149,8 @@ def notarization(address, document_hash):
 
     if request.method == 'PUT':
         if authenticated(address):
-            govern8r_token = request.cookies.get('govern8r_token')
+            account_data = account_service.get_challenge(address)  ## rotate authentication token
+            govern8r_token = build_token(account_data['nonce'])
             js = json.dumps({})
             authenticated_response = Response(js, status=200, mimetype='application/json')
             authenticated_response.set_cookie('govern8r_token', govern8r_token)
