@@ -137,14 +137,12 @@ class AccountDbService(object):
     def get_challenge(self, address):
         account = self.get_account_by_address(address)
         if account is None or account['account_status'] != 'CONFIRMED':
-            return {}
+            return None
         else:
             new_nonce = self.generate_nonce()
+            account['nonce'] = new_nonce
             self.update_account_nonce(account, new_nonce)
-
-
-
-
+            return account
 
     def confirm_account(self, address, nonce):
         '''

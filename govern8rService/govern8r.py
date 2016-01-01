@@ -10,6 +10,17 @@ wallet = NotaryWallet()
 account_service = AccountDbService()
 
 
+def build_fingerprint():
+    fingerprint = request.user_agent+request.remote_addr
+    return fingerprint
+
+
+def build_token(nonce):
+    token = ''
+    # token = hash(hash(build_fingerprint()) + hash(nonce))
+    return token
+
+
 @app.route("/govern8r/api/v1/pubkey", methods=['GET'])
 def pubkey():
     """
@@ -31,10 +42,29 @@ def challenge(address):
     """
     Authentication
     """
-    if request.method == 'GET':
-        account_service.get_challenge(address)
+    js = json.dumps({})
+    bad_response = Response(js, status=500, mimetype='application/json')
 
-    return {}
+    secure_message = SecureMessage()
+    if request.method == 'GET':
+        account = account_service.get_challenge(address)
+        if account is None:
+            return bad_response
+        str_nonce = json.dumps({'nonce': account['nonce']})
+        payload = secure_message.create_secure_payload(account['public_key'], str_nonce)
+        return payload
+    elif request.method == 'PUT':
+        account = account_service.get_account_by_address(address)
+        if account is None:
+            return bad_response
+        payload = request.data
+        if secure_message.verify_secure_payload(address, payload):
+            raw_message = secure_message.get_message_from_secure_payload(payload)
+            message = json.loads(raw_message)
+            print("Incoming nonce: %s" % message['nonce'])
+            print("Nonce on record: %s" % account['nonce'])
+            return bad_response
+    return bad_response
 
 
 @app.route("/govern8r/api/v1/account/<address>", methods=['GET', 'PUT'])
