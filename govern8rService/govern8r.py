@@ -161,7 +161,10 @@ def notarization_status(address, document_hash):
        The hash of the document.
     """
 
-    # request.method == 'GET'
+    if request.method == 'GET':
+        if authenticated(address):
+            pass
+
     return {}
 
 
