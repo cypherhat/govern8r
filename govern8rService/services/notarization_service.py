@@ -79,8 +79,9 @@ class NotarizationService(object):
 
     def notarize(self, notarization):
         notary_hash = self.sign_and_hash(notarization['document_hash'])
-        notarization['notary_hash'] = notary_hash
-        transaction_hash = add_to_blockchain(notary_hash.encode("hex"))
+        hex_hash = str(notary_hash).encode("hex")
+        notarization['notary_hash'] = hex_hash
+        transaction_hash = add_to_blockchain(hex_hash)
         if transaction_hash is not None:
             notarization['transaction_hash'] = transaction_hash
             notarization['date_created'] = datetime.now().isoformat(' ')
