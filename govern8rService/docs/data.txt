@@ -29,11 +29,10 @@ Notarization
 		coverage
 		rights
 	address
-	file_digest
-	user_signature_on_file_digest
-	generated_meta_data
+	document_hash
+	user_signature_on_document_hash
 	notary_signature_on_meta_data
-	transaction
+	transaction_hash
 	status
 	date_created
 	date_confirmed

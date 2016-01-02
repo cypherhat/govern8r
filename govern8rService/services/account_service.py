@@ -44,7 +44,7 @@ class AccountService(object):
         self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
         try:
             self.account_table = self.dynamodb.Table('Account')
-            print(self.account_table.table_status)
+            print("Account Table is %s" % self.account_table.table_status)
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == 'ResourceNotFoundException':
                 self.create_account_table()
@@ -70,7 +70,7 @@ class AccountService(object):
                     'WriteCapacityUnits': 10
                 }
             )
-
+            print("Account Table is %s" % self.account_table.table_status)
         except botocore.exceptions.ClientError as e:
             if e.response['Error']['Code'] == 'ResourceInUseException':
                 print("Houston, we have a problem: the Account Table exists.")
@@ -87,7 +87,7 @@ class AccountService(object):
             derived_address = str(raw_address)
             if derived_address == address:
                 account['nonce'] = generate_nonce()
-                account['created'] = datetime.now().isoformat(' ')
+                account['date_created'] = datetime.now().isoformat(' ')
                 account['account_status'] = 'PENDING'
                 account['address'] = str(address)
                 self.account_table.put_item(Item=account)
@@ -154,14 +154,6 @@ class AccountService(object):
         else:
             return False        
     
-    def get_account_by_public_key(self, public_key):
-        response = self.account_table.query(KeyConditionExpression=Key('public_key').eq(public_key))
-
-        if len(response['Items']) == 0:
-            return None
-        else:
-            return response['Items'][0]
-
     def get_account_by_address(self, address):
         response = self.account_table.query(KeyConditionExpression=Key('address').eq(address))
 

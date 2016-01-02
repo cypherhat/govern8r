@@ -2,13 +2,15 @@ from flask import request, Response, json
 from flask_api import FlaskAPI
 from wallet import NotaryWallet
 from services.account_service import AccountService
+from services.notarization_service import NotarizationService
 from message import SecureMessage
 import hashlib
 
 app = FlaskAPI(__name__)
 wallet = NotaryWallet()
 account_service = AccountService()
-
+notarization_service = NotarizationService()
+secure_message = SecureMessage()
 
 def build_fingerprint():
     fingerprint = str(request.user_agent)+str(request.remote_addr)
@@ -31,6 +33,15 @@ def authenticated(address):
     account_data = account_service.get_account_by_address(address)
     govern8r_token = request.cookies.get('govern8r_token')
     return validate_token(account_data['nonce'], govern8r_token)
+
+
+def rotate_authentication_token(address):
+    account_data = account_service.get_challenge(address)  ## rotate authentication token
+    govern8r_token = build_token(account_data['nonce'])
+    js = json.dumps({})
+    authenticated_response = Response(js, status=200, mimetype='application/json')
+    authenticated_response.set_cookie('govern8r_token', govern8r_token)
+    return authenticated_response
 
 
 @app.route("/govern8r/api/v1/pubkey", methods=['GET'])
@@ -63,7 +74,6 @@ def challenge(address):
     bad_response = Response(js, status=500, mimetype='application/json')
     bad_response.set_cookie('govern8r_token', 'UNAUTHENTICATED')
 
-    secure_message = SecureMessage()
     if request.method == 'GET':
         account_data = account_service.get_challenge(address)
         if account_data is None:
@@ -99,10 +109,10 @@ def account(address):
 
     good_response = Response(json.dumps({}), status=200, mimetype='application/json')
     bad_response = Response(json.dumps({}), status=500, mimetype='application/json')
-    secure_message = SecureMessage()
-    payload = request.data
-    if secure_message.verify_secure_payload(address, payload):
-        str_registration_data = secure_message.get_message_from_secure_payload(payload)
+
+    inbound_payload = request.data
+    if secure_message.verify_secure_payload(address, inbound_payload):
+        str_registration_data = secure_message.get_message_from_secure_payload(inbound_payload)
         registration_data = json.loads(str_registration_data)
 
         if request.method == 'PUT':
@@ -110,6 +120,13 @@ def account(address):
                 return bad_response
             else:
                 return good_response
+        elif request.method == 'GET' and authenticated(address):
+            account_data = account_service.get_account_by_address(address)
+            outbound_payload = secure_message.create_secure_payload(account_data['public_key'], json.dumps(account_data))
+            authenticated_response = rotate_authentication_token(address)
+            authenticated_response.data = outbound_payload
+            return authenticated_response
+
         else:
             return bad_response
 
@@ -150,11 +167,20 @@ def notarization(address, document_hash):
 
     if request.method == 'PUT':
         if authenticated(address):
-            account_data = account_service.get_challenge(address)  ## rotate authentication token
-            govern8r_token = build_token(account_data['nonce'])
-            js = json.dumps({})
-            authenticated_response = Response(js, status=200, mimetype='application/json')
-            authenticated_response.set_cookie('govern8r_token', govern8r_token)
+            inbound_payload = request.data
+            str_notarization_input_data = secure_message.get_message_from_secure_payload(inbound_payload)
+            notarization_input_data = json.loads(str_notarization_input_data)
+            notarization_input_data['document_hash'] = document_hash
+            notarization_input_data['address'] = address
+            notarization_output_data = notarization_service.notarize(notarization_input_data)
+            authenticated_response = rotate_authentication_token(address)
+            if notarization_output_data is not None:
+                account_data = account_service.get_account_by_address(address)
+                outbound_payload = secure_message.create_secure_payload(account_data['public_key'], json.dumps(notarization_output_data))
+                authenticated_response.data = outbound_payload
+            else:
+                authenticated_response.status_code = 500
+
             return authenticated_response
         else:
             return unauthenticated_response
@@ -179,11 +205,30 @@ def notarization_status(address, document_hash):
 
     if request.method == 'GET':
         if authenticated(address):
-            account_data = account_service.get_challenge(address)  ## rotate authentication token
-            govern8r_token = build_token(account_data['nonce'])
-            js = json.dumps({})
-            authenticated_response = Response(js, status=200, mimetype='application/json')
-            authenticated_response.set_cookie('govern8r_token', govern8r_token)
+            authenticated_response = rotate_authentication_token(address)
+            return authenticated_response
+        else:
+            return unauthenticated_response
+    return unauthenticated_response
+
+
+@app.route("/govern8r/api/v1/account/<address>/test", methods=['GET'])
+def test_authentication(address):
+    """
+    Test authentication
+    Parameters
+    ----------
+    address : string
+       The Bitcoin address of the client.
+    """
+
+    js = json.dumps({})
+    unauthenticated_response = Response(js, status=401, mimetype='application/json')
+    unauthenticated_response.set_cookie('govern8r_token', 'UNAUTHENTICATED')
+
+    if request.method == 'GET':
+        if authenticated(address):
+            authenticated_response = rotate_authentication_token(address)
             return authenticated_response
         else:
             return unauthenticated_response
