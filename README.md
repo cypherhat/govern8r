@@ -26,6 +26,7 @@ In directory govern8rService:
 	sudo pip install configparser
 	sudo pip install ecdsa
 	sudo pip install pycrypto
+	sudo pip install simple-crypt
 
 ```
 
@@ -92,6 +93,7 @@ in directory govern8rClient:
 	sudo pip install ecdsa
 	sudo pip install pycrypto
 	sudo pip install configparser
+	sudo pip install simple-crypt
 
 ```
 
