@@ -39,8 +39,9 @@ def check_account(account):
 
 class AccountService(object):
 
-    def __init__(self):
+    def __init__(self, wallet):
         # Initializes some dictionaries to store accounts
+        self.wallet = wallet
         self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
         try:
             self.account_table = self.dynamodb.Table('Account')

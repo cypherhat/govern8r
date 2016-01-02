@@ -8,7 +8,7 @@ import hashlib
 from datetime import datetime
 
 blockcypher_token = "a65c446def8ad58f07a8f03272268bfc"
-coin_network = 'test3'
+coin_network = 'btc-testnet'
 
 
 def add_to_blockchain(data_value):
@@ -35,8 +35,8 @@ def check_notarization(notarization):
 
 class NotarizationService(object):
     
-    def __init__(self):
-        self.wallet = NotaryWallet("foobar")
+    def __init__(self, wallet):
+        self.wallet = wallet
         self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
         try:
             self.notarization_table = self.dynamodb.Table('Notarization')
