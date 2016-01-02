@@ -1,7 +1,7 @@
 import requests
 import boto3
 import botocore
-from blockcypher import embed_data
+from blockcypher import embed_data, get_transaction_details
 from boto3.dynamodb.conditions import Key
 from wallet import NotaryWallet
 import hashlib
@@ -108,3 +108,11 @@ class NotarizationService(object):
             return None
         else:
             return response['Items'][0]
+
+    def get_notarization_status(self, document_hash):
+         notarization_data = self.get_notarization_by_document_hash(document_hash)
+         status_data = get_transaction_details(notarization_data['transaction_hash'], coin_network)
+         if status_data is None:
+             return None
+         else:
+             return status_data

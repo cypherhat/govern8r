@@ -4,6 +4,7 @@ from wallet import NotaryWallet
 from services.account_service import AccountService
 from services.notarization_service import NotarizationService
 from message import SecureMessage
+from blockcypher import get_transaction_details
 import hashlib
 
 app = FlaskAPI(__name__)
@@ -81,7 +82,9 @@ def challenge(address):
             return bad_response
         str_nonce = json.dumps({'nonce': account_data['nonce']})
         payload = secure_message.create_secure_payload(account_data['public_key'], str_nonce)
-        return payload
+        good_response = Response(js, status=200, mimetype='application/json')
+        good_response.data = json.dumps(payload)
+        return good_response
     elif request.method == 'PUT':
         account_data = account_service.get_account_by_address(address)
         if account_data is None:
@@ -92,9 +95,15 @@ def challenge(address):
             message = json.loads(raw_message)
             if message['nonce'] == account_data['nonce']:
                 govern8r_token = build_token(account_data['nonce'])
-                good_response = Response(js, status=500, mimetype='application/json')
+                good_response = Response(js, status=200, mimetype='application/json')
                 good_response.set_cookie('govern8r_token', value=govern8r_token)
                 return good_response
+            else:
+                bad_response.status_code = 401
+                return bad_response
+        else:
+            bad_response.status_code = 401
+            return bad_response
     return bad_response
 
 
@@ -178,7 +187,7 @@ def notarization(address, document_hash):
             if notarization_output_data is not None:
                 account_data = account_service.get_account_by_address(address)
                 outbound_payload = secure_message.create_secure_payload(account_data['public_key'], json.dumps(notarization_output_data))
-                authenticated_response.data = outbound_payload
+                authenticated_response.data = json.dumps(outbound_payload)
             else:
                 authenticated_response.status_code = 500
 
@@ -207,6 +216,8 @@ def notarization_status(address, document_hash):
     if request.method == 'GET':
         if authenticated(address):
             authenticated_response = rotate_authentication_token(address)
+            status_data = notarization_service.get_notarization_status(document_hash)
+            authenticated_response.data = status_data
             return authenticated_response
         else:
             return unauthenticated_response
