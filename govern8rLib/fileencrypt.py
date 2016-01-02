@@ -26,8 +26,8 @@ def main():
 
 
 def read_encrypted(password, filename, string=True):
-    with open(filename, 'rb') as input:
-        ciphertext = input.read()
+    with open(filename, 'rb') as input_file:
+        ciphertext = input_file.read()
         plaintext = decrypt(password, ciphertext)
         if string:
             return plaintext.decode('utf8')

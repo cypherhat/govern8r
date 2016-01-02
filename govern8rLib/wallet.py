@@ -20,12 +20,12 @@ def wallet_exists():
 
 def read_private_key():
     if wallet_exists():
-        plain_text=fileencrypt.read_encrypted(password, file_name, string=True)
+        plain_text = fileencrypt.read_encrypted(password, file_name, string=True)
         buf = StringIO.StringIO(plain_text)
         config = configparser.ConfigParser()
         config.readfp(buf)
         if config.has_option(section_name, 'private_key'):
-            private_hex = config.get (section_name, 'private_key')
+            private_hex = config.get(section_name, 'private_key')
             return private_hex
         else:
             raise ValueError('Private key does not exist!')
@@ -46,8 +46,8 @@ def create_new_wallet():
     with open(file_name, 'w') as configfile:
         config.write(configfile)
 
-    file = open(file_name, 'r')
-    plain_text=file.read()
+    wallet_file = open(file_name, 'r')
+    plain_text = wallet_file.read()
 
     fileencrypt.write_encrypted(password, file_name, plain_text)
 
