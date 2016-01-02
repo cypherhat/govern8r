@@ -1,10 +1,10 @@
+
 import configparser
 import os
 from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
 from bitcoinlib.signmessage import BitcoinMessage, VerifyMessage, SignMessage
 import base58
-import fileencrypt
-import StringIO
+import encrypt
 
 section_name = 'NotaryWallet'
 file_name = 'notarywallet.data'
@@ -17,14 +17,12 @@ def wallet_exists():
         return False
 
 
-def read_private_key(password):
+def read_private_key():
     if wallet_exists():
-        plain_text = fileencrypt.read_encrypted(password, file_name, string=True)
-        buf = StringIO.StringIO(plain_text)
         config = configparser.ConfigParser()
-        config.readfp(buf)
+        config.read(file_name)
         if config.has_option(section_name, 'private_key'):
-            private_hex = config.get(section_name, 'private_key')
+            private_hex = config.get (section_name, 'private_key')
             return private_hex
         else:
             raise ValueError('Private key does not exist!')
@@ -32,7 +30,7 @@ def read_private_key(password):
         raise ValueError('Wallet does not exist!')
 
 
-def create_new_wallet(password):
+def create_new_wallet():
     if wallet_exists():
         raise ValueError('Wallet already exists!')
     # Create private key
@@ -42,23 +40,18 @@ def create_new_wallet(password):
     config = configparser.ConfigParser()
     config.add_section(section_name)
     config.set(section_name, 'private_key',  private_hex)
+
     with open(file_name, 'w') as configfile:
         config.write(configfile)
-
-    wallet_file = open(file_name, 'r')
-    plain_text = wallet_file.read()
-
-    fileencrypt.write_encrypted(password, file_name, plain_text)
 
 
 class NotaryWallet(object):
     """An encapsulated wallet for notary stuff.
-
     """
     def __init__(self, password):
         if not wallet_exists():
-            create_new_wallet(password)
-        self.private_key_hex = read_private_key(password)
+            create_new_wallet()
+        self.private_key_hex = read_private_key()
         self.private_key_wif = base58.base58_check_encode(0x80, self.private_key_hex.decode("hex"))
         self.private_key = CBitcoinSecret(self.private_key_wif)
 

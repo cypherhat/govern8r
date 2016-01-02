@@ -8,8 +8,8 @@ import hashlib
 
 app = FlaskAPI(__name__)
 wallet = NotaryWallet("foobar")
-account_service = AccountService()
-notarization_service = NotarizationService()
+account_service = AccountService(wallet)
+notarization_service = NotarizationService(wallet)
 secure_message = SecureMessage(wallet)
 
 
@@ -237,4 +237,4 @@ def test_authentication(address):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)
