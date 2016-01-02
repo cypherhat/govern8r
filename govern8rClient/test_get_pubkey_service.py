@@ -1,10 +1,7 @@
 import requests
-import json
 from wallet import NotaryWallet
-from bitcoinlib.wallet import P2PKHBitcoinAddress
-from message import SecureMessage
 
-wallet = NotaryWallet()
+wallet = NotaryWallet("foobar")
 
 
 ## Test GET pubkey

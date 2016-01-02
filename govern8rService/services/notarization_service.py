@@ -38,7 +38,7 @@ def check_notarization(notarization):
 class NotarizationService(object):
     
     def __init__(self):
-        self.wallet = NotaryWallet()
+        self.wallet = NotaryWallet("foobar")
         self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
         try:
             self.notarization_table = self.dynamodb.Table('Notarization')

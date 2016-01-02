@@ -1,14 +1,13 @@
 import bitcoin_asymmetric_encrypt
 from wallet import NotaryWallet
-from bitcoinlib.wallet import P2PKHBitcoinAddress
 from bitcoinlib.signmessage import VerifyMessage, BitcoinMessage
 from bitcoinlib.core.key import CPubKey
 
 
 class SecureMessage(object):
 
-    def __init__(self):
-        self.wallet = NotaryWallet()
+    def __init__(self, wallet):
+        self.wallet = wallet
         
     def create_secure_payload(self, other_party_public_key_hex, message):
         other_party_public_key = CPubKey(other_party_public_key_hex.decode("hex"))

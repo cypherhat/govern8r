@@ -5,6 +5,7 @@ from os import unlink
 PASSWORD = "secret"
 FILENAME = "encrypted.txt"
 
+
 def main():
     # read or create the file
     if exists(FILENAME):

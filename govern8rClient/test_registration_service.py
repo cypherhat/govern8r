@@ -4,15 +4,14 @@ from wallet import NotaryWallet
 from bitcoinlib.wallet import P2PKHBitcoinAddress
 from message import SecureMessage
 
-wallet = NotaryWallet()
-
+wallet = NotaryWallet("foobar")
+secure_message = SecureMessage(wallet)
 
 ## Test GET pubkey
 req_pubkey = requests.get('http://127.0.0.1:5000/govern8r/api/v1/pubkey')
 data = req_pubkey.json()
 other_party_public_key = data['public_key']
 print data['public_key']
-secure_message = SecureMessage()
 address = str(wallet.get_bitcoin_address())
 
 ## Test POST account
