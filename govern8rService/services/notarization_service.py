@@ -7,10 +7,8 @@ from wallet import NotaryWallet
 import hashlib
 from datetime import datetime
 
-
-blockcypher_url = "https://api.blockcypher.com/v1/btc/test3/txs/data"
 blockcypher_token = "a65c446def8ad58f07a8f03272268bfc"
-coin_network = 'btc'
+coin_network = 'test3'
 
 
 def add_to_blockchain(data_value):
@@ -38,7 +36,7 @@ def check_notarization(notarization):
 class NotarizationService(object):
     
     def __init__(self):
-        self.wallet = NotaryWallet()
+        self.wallet = NotaryWallet("foobar")
         self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
         try:
             self.notarization_table = self.dynamodb.Table('Notarization')
@@ -82,7 +80,7 @@ class NotarizationService(object):
     def notarize(self, notarization):
         notary_hash = self.sign_and_hash(notarization['document_hash'])
         notarization['notary_hash'] = notary_hash
-        transaction_hash = add_to_blockchain(notary_hash)
+        transaction_hash = add_to_blockchain(notary_hash.encode("hex"))
         if transaction_hash is not None:
             notarization['transaction_hash'] = transaction_hash
             notarization['date_created'] = datetime.now().isoformat(' ')

@@ -10,10 +10,10 @@ from bitcoinlib.wallet import P2PKHBitcoinAddress
 
 
 class Notary(object):
-    def __init__(self, notary_url):
+    def __init__(self, notary_url, password):
         self.notary_url = notary_url
-        self.wallet = NotaryWallet()
-        self.secure_message = SecureMessage()
+        self.wallet = NotaryWallet(password)
+        self.secure_message = SecureMessage(self.wallet)
         response = requests.get(self.notary_url+'/api/v1/pubkey')
         data = response.json()
         self.other_party_public_key_hex = data['public_key']
@@ -64,15 +64,21 @@ class Notary(object):
 
 def main():
     notary_url = 'http://127.0.0.1:5000/govern8r'
-    notary = Notary(notary_url)
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=['register', 'confirm', 'notary'], help="Name of the command.")
+    parser.add_argument("-password", type=str, help="the password used to access the wallet.")
     parser.add_argument("-email", type=str, help="the email address of the registered user.")
     parser.add_argument("-file", type=file, help="Fully qualified name of the file to notarize.")
     parser.add_argument("-metadata", type=file, help="File containing metadata of the file to notarize.")
     parser.add_argument("-confirm_url", type=str, help="Confirmation URL to confirm an account.")
     args = parser.parse_args()
+    if not args.password:
+        print("Password is required!")
+        return
+
+    notary = Notary(notary_url, args.password)
     command = args.command
+
     print command
     if command == "register":
         print "running register command"

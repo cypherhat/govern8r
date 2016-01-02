@@ -7,7 +7,7 @@ from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
 def privateKeyToWif(key_hex):
     return base58_check_encode(0x80, key_hex.decode('hex'))
 
-wallet = NotaryWallet()
+wallet = NotaryWallet("foobar")
 
 print("\nWallet Private Key %s" % wallet.get_private_key())
 print("\nWallet Public Key %s" % wallet.get_public_key())

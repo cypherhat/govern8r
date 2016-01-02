@@ -5,6 +5,7 @@ from os import unlink
 PASSWORD = "secret"
 FILENAME = "encrypted.txt"
 
+
 def main():
     # read or create the file
     if exists(FILENAME):
@@ -24,14 +25,16 @@ def main():
         unlink(FILENAME)
         print("deleted %s" % FILENAME)
 
+
 def read_encrypted(password, filename, string=True):
-    with open(filename, 'rb') as input:
-        ciphertext = input.read()
+    with open(filename, 'rb') as input_file:
+        ciphertext = input_file.read()
         plaintext = decrypt(password, ciphertext)
         if string:
             return plaintext.decode('utf8')
         else:
             return plaintext
+
 
 def write_encrypted(password, filename, plaintext):
     with open(filename, 'wb') as output:

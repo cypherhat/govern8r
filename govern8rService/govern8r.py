@@ -7,10 +7,11 @@ from message import SecureMessage
 import hashlib
 
 app = FlaskAPI(__name__)
-wallet = NotaryWallet()
+wallet = NotaryWallet("foobar")
 account_service = AccountService()
 notarization_service = NotarizationService()
-secure_message = SecureMessage()
+secure_message = SecureMessage(wallet)
+
 
 def build_fingerprint():
     fingerprint = str(request.user_agent)+str(request.remote_addr)

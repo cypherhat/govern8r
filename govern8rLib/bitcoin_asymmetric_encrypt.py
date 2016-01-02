@@ -15,6 +15,7 @@ from Crypto.Cipher import AES
 from Crypto.Util import Counter
 from Crypto.Random import random
 
+
 class SECP256k1:
     oid = (1, 3, 132, 0, 10)
     p = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2FL
@@ -28,6 +29,7 @@ class SECP256k1:
     G = ecdsa.ellipticcurve.Point(curve, Gx, Gy, order)
     ecdsa_curve = ecdsa.curves.Curve("SECP256k1", curve, G, oid)
 
+
 def encode_point(p, compressed):
     order = SECP256k1.order
     x_str = ecdsa.util.number_to_string(p.x(), order)
@@ -36,6 +38,7 @@ def encode_point(p, compressed):
     else:
         y_str = ecdsa.util.number_to_string(p.y(), order)
         return chr(4) + x_str + y_str
+
 
 def decode_point(point):
     # See http://www.secg.org/download/aid-780/sec1-v2.pdf section 2.3.4
@@ -68,8 +71,10 @@ def decode_point(point):
             y = curve.p() - beta
         return ecdsa.ellipticcurve.Point(curve, x, y, order)
 
+
 def double_sha256(data):
     return hashlib.sha256(hashlib.sha256(data).digest()).digest()
+
 
 class B58:
     chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
@@ -122,6 +127,7 @@ class B58:
         h = double_sha256(payload)[0:4]
         return self.encode(payload + h)
 
+
 def encode_varint(num):
     if num < 253L:
         return chr(num)
@@ -132,9 +138,11 @@ def encode_varint(num):
     else:
         return chr(255) + struct.pack("<Q", num)
 
+
 def format_message_for_signing(message):
     header = "Bitcoin Signed Message:\n"
     return encode_varint(len(header)) + header + encode_varint(len(message)) + message
+
 
 def private_key_to_secret_check_compressed(private_key):
     encoded = B58().unwrap(private_key)
@@ -152,9 +160,11 @@ def private_key_to_secret_check_compressed(private_key):
             return None, None
         return ecdsa.util.string_to_number(encoded[1:33]), True
 
+
 def private_key_to_secret(private_key):
     secret, compressed = private_key_to_secret_check_compressed(private_key)
     return secret
+
 
 def secret_to_private_key(secret, compressed):
     encoded = chr(0x80) + ecdsa.util.number_to_string(secret, SECP256k1.order)
@@ -162,14 +172,17 @@ def secret_to_private_key(secret, compressed):
         encoded = encoded + chr(0x01)
     return B58().wrap(encoded)
 
+
 def generate_secret():
     return ecdsa.util.randrange(SECP256k1.order)
+
 
 def public_key_to_address(public_key):
     addrtype = 0
     md = hashlib.new('ripemd160')
     md.update(hashlib.sha256(public_key).digest())
     return B58().wrap(chr(addrtype) + md.digest())
+
 
 def address_to_public_key(address):
     mixed = urllib2.urlopen("https://blockchain.info/q/pubkeyaddr/" + address).read().decode("hex")
@@ -181,9 +194,11 @@ def address_to_public_key(address):
     else:
         return mixed[:33]
 
+
 def private_key_to_public_key(private_key):
     secret, compressed = private_key_to_secret_check_compressed(private_key)
     return encode_point(SECP256k1.G * secret, compressed)
+
 
 def signature_to_public_key(signature, message):
     # See http://www.secg.org/download/aid-780/sec1-v2.pdf section 4.1.6 primarily
@@ -245,6 +260,7 @@ def signature_to_public_key(signature, message):
         return None
     return encode_point(Q, compressed)
 
+
 def verify(signature, message, address):
     public_key = signature_to_public_key(signature, message)
     if not public_key:
@@ -254,6 +270,7 @@ def verify(signature, message, address):
         return True
     else:
         return False
+
 
 def sign(private_key, message):
     curve = SECP256k1.curve
@@ -300,6 +317,7 @@ def sign(private_key, message):
 
     return base64.b64encode(meta + ecdsa_signature)
 
+
 # PKCS#7 padding
 def pad(message, block_size):
     padded = message
@@ -308,6 +326,7 @@ def pad(message, block_size):
     for i in range(to_pad):
         padded = padded + chr(to_pad)
     return padded
+
 
 def unpad(message, block_size):
     length = len(message)
@@ -336,6 +355,7 @@ def unpad(message, block_size):
 # The key is the shared secret which is (r * public key) == ((r * curve base point) * private key), where r is a random number and (r * curve base point) is shared.
 # This is because private key * curve base point == public key. It shouldn't be possible to get from r * curve base point back to r * public key without the private key.
 
+
 def encrypt(public_key, message):
     padded = pad(message, AES.block_size)
     r = ecdsa.util.randrange(SECP256k1.order)
@@ -351,6 +371,7 @@ def encrypt(public_key, message):
     c = cipher.encrypt(padded)
     d = hmac.new(k_M, prefix_bytes + c, hashlib.sha256).digest()
     return textwrap.fill(base64.b64encode(encode_point(R, True) + d + prefix_bytes + c), 200)
+
 
 def decrypt(private_key, message):
     secret = private_key_to_secret(private_key)
@@ -381,6 +402,7 @@ def decrypt(private_key, message):
     cipher = AES.new(key=k_E, mode=AES.MODE_CTR, counter=ctr)
     padded = cipher.decrypt(c)
     return unpad(padded, AES.block_size)
+
 
 def main():
     parser = argparse.ArgumentParser(description='Encrypt messages to bitcoin address holders using Elliptic Curve Integrated Encryption Scheme.')
