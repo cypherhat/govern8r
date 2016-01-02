@@ -3,10 +3,12 @@ import os
 from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
 from bitcoinlib.signmessage import BitcoinMessage, VerifyMessage, SignMessage
 import base58
-import bitcoin_asymmetric_encrypt
+import fileencrypt
+import StringIO
 
 section_name = 'NotaryWallet'
 file_name = 'notarywallet.data'
+password = 'notary!qaz2wsx'
 
 
 def wallet_exists():
@@ -18,8 +20,10 @@ def wallet_exists():
 
 def read_private_key():
     if wallet_exists():
+        plain_text=fileencrypt.read_encrypted(password, file_name, string=True)
+        buf = StringIO.StringIO(plain_text)
         config = configparser.ConfigParser()
-        config.read(file_name)
+        config.readfp(buf)
         if config.has_option(section_name, 'private_key'):
             private_hex = config.get (section_name, 'private_key')
             return private_hex
@@ -39,9 +43,13 @@ def create_new_wallet():
     config = configparser.ConfigParser()
     config.add_section(section_name)
     config.set(section_name, 'private_key',  private_hex)
-
     with open(file_name, 'w') as configfile:
         config.write(configfile)
+
+    file = open(file_name, 'r')
+    plain_text=file.read()
+
+    fileencrypt.write_encrypted(password, file_name, plain_text)
 
 
 class NotaryWallet(object):
