@@ -1,13 +1,13 @@
 from flask import request, Response, json
 from flask_api import FlaskAPI
 from wallet import NotaryWallet
-from services.account_db_service import AccountDbService
+from services.account_service import AccountService
 from message import SecureMessage
 import hashlib
 
 app = FlaskAPI(__name__)
 wallet = NotaryWallet()
-account_service = AccountDbService()
+account_service = AccountService()
 
 
 def build_fingerprint():
