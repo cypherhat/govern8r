@@ -10,7 +10,6 @@ import hashfile
 wallet = NotaryWallet("foobar")
 secure_message = SecureMessage(wallet)
 
-
 ## Test GET pubkey
 pubkey_response = requests.get('http://127.0.0.1:5000/govern8r/api/v1/pubkey')
 data = pubkey_response.json()
@@ -23,14 +22,14 @@ address = str(wallet.get_bitcoin_address())
 
 ## Test GET challenge
 
-response = requests.get('http://127.0.0.1:5000/govern8r/api/v1/challenge/'+address)
+response = requests.get('http://127.0.0.1:5000/govern8r/api/v1/challenge/' + address)
 payload = json.loads(response.content)
 if secure_message.verify_secure_payload(other_party_address, payload):
     message = secure_message.get_message_from_secure_payload(payload)
     print(message)
 
 payload = secure_message.create_secure_payload(other_party_public_key_hex, message)
-response = requests.put('http://127.0.0.1:5000/govern8r/api/v1/challenge/'+address, data=payload)
+response = requests.put('http://127.0.0.1:5000/govern8r/api/v1/challenge/' + address, data=payload)
 cookies = requests.utils.dict_from_cookiejar(response.cookies)
 
 metadata = {
@@ -50,10 +49,11 @@ metadata = {
     'rights': 'Unknown'
 }
 
-document_hash = hashfile.hash_file('/Users/tssbi08/govern8r/IP/Stillwater_Shame.m4a')
+document_hash = hashfile.hash_file('C:\\dynamodb\\mytestdoc.txt')
 notarization_payload = secure_message.create_secure_payload(other_party_public_key_hex, json.dumps(metadata))
 
-response = requests.put('http://127.0.0.1:5000/govern8r/api/v1/account/'+address+'/notarization/'+document_hash, cookies=cookies, data=notarization_payload)
+response = requests.put('http://127.0.0.1:5000/govern8r/api/v1/account/' + address + '/notarization/' + document_hash,
+                        cookies=cookies, data=notarization_payload)
 payload = json.loads(response.content)
 if secure_message.verify_secure_payload(other_party_address, payload):
     message = secure_message.get_message_from_secure_payload(payload)
