@@ -4,7 +4,7 @@ from wallet import NotaryWallet
 from services.account_service import AccountService
 from services.notarization_service import NotarizationService
 from message import SecureMessage
-from bitcoinlib.signmessage import VerifyMessage
+import base58
 import hashlib
 
 app = FlaskAPI(__name__)
@@ -23,7 +23,8 @@ def build_token(nonce):
     nonce_hash = hashlib.sha256(nonce).digest()
     fingerprint_hash = hashlib.sha256(build_fingerprint()).digest()
     token = hashlib.sha256(nonce_hash + fingerprint_hash).digest()
-    return token.encode("hex")
+    encoded = base58.base58_check_encode(0x80, token.encode("hex"))
+    return encoded
 
 
 def validate_token(nonce, token):
