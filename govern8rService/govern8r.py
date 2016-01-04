@@ -219,7 +219,12 @@ def notarization_status(address, document_hash):
         if authenticated(address):
             authenticated_response = rotate_authentication_token(address)
             status_data = notarization_service.get_notarization_status(document_hash)
-            authenticated_response.data = status_data
+            if status_data is not None:
+                account_data = account_service.get_account_by_address(address)
+                outbound_payload = secure_message.create_secure_payload(account_data['public_key'], json.dumps(status_data))
+                authenticated_response.data = json.dumps(outbound_payload)
+            else:
+                authenticated_response.data = status_data
             return authenticated_response
         else:
             return unauthenticated_response
