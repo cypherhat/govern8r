@@ -25,5 +25,5 @@ email = 'amanda@foobar.com'
 registration_message = {'public_key': wallet.get_public_key_hex(), 'email': email}
 
 registration_payload = secure_message.create_secure_payload(other_party_public_key, json.dumps(registration_message))
-response = requests.put('http://127.0.0.1:5000/govern8r/api/v1/account/'+address, data=registration_payload)
+response = requests.put('http://127.0.0.1:5000/govern8r/api/v1/account/' + address, data=registration_payload)
 print(response.status_code)

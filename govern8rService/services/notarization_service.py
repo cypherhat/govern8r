@@ -13,7 +13,8 @@ coin_network = 'btc-testnet'
 
 def add_to_blockchain(data_value):
     try:
-        response = embed_data(to_embed=data_value, api_key=blockcypher_token, data_is_hex=True, coin_symbol=coin_network)
+        response = embed_data(to_embed=data_value, api_key=blockcypher_token, data_is_hex=True,
+                              coin_symbol=coin_network)
         transaction_hash = response['hash']
         return transaction_hash
     except requests.ConnectionError as e:
@@ -34,7 +35,6 @@ def check_notarization(notarization):
 
 
 class NotarizationService(object):
-    
     def __init__(self, wallet):
         self.wallet = wallet
         self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
@@ -48,23 +48,23 @@ class NotarizationService(object):
     def create_notarization_table(self):
         try:
             self.notarization_table = self.dynamodb.create_table(
-                TableName='Notarization',
-                KeySchema=[
-                    {
-                        'AttributeName': 'document_hash',
-                        'KeyType': 'HASH'
+                    TableName='Notarization',
+                    KeySchema=[
+                        {
+                            'AttributeName': 'document_hash',
+                            'KeyType': 'HASH'
+                        }
+                    ],
+                    AttributeDefinitions=[
+                        {
+                            'AttributeName': 'document_hash',
+                            'AttributeType': 'S'
+                        }
+                    ],
+                    ProvisionedThroughput={
+                        'ReadCapacityUnits': 10,
+                        'WriteCapacityUnits': 10
                     }
-                ],
-                AttributeDefinitions=[
-                    {
-                        'AttributeName': 'document_hash',
-                        'AttributeType': 'S'
-                    }
-                ],
-                ProvisionedThroughput={
-                    'ReadCapacityUnits': 10,
-                    'WriteCapacityUnits': 10
-                }
             )
             print("Notarization Table is %s" % self.notarization_table.table_status)
         except botocore.exceptions.ClientError as e:
@@ -74,7 +74,7 @@ class NotarizationService(object):
         signature = self.wallet.sign(document_hash)
         hashed_signature = hashlib.sha256(signature).digest()
         hashed_document_hash = hashlib.sha256(document_hash).digest()
-        notary_hash = hashlib.sha256(hashed_signature+hashed_document_hash).digest()
+        notary_hash = hashlib.sha256(hashed_signature + hashed_document_hash).digest()
         return notary_hash
 
     def notarize(self, notarization):
@@ -94,6 +94,8 @@ class NotarizationService(object):
         if not check_notarization(notarization):
             return None
         try:
+            print "Notarization is "
+            print notarization
             self.notarization_table.put_item(Item=notarization)
         except botocore.exceptions.ClientError as e:
             print(e.response['Error']['Code'])
@@ -110,9 +112,9 @@ class NotarizationService(object):
             return response['Items'][0]
 
     def get_notarization_status(self, document_hash):
-         notarization_data = self.get_notarization_by_document_hash(document_hash)
-         status_data = get_transaction_details(notarization_data['transaction_hash'], coin_network)
-         if status_data is None:
-             return None
-         else:
-             return status_data
+        notarization_data = self.get_notarization_by_document_hash(document_hash)
+        status_data = get_transaction_details(notarization_data['transaction_hash'], coin_network)
+        if status_data is None:
+            return None
+        else:
+            return status_data
