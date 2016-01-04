@@ -3,7 +3,6 @@ import boto3
 import botocore
 from blockcypher import embed_data, get_transaction_details
 from boto3.dynamodb.conditions import Key
-from wallet import NotaryWallet
 import hashlib
 from datetime import datetime
 
