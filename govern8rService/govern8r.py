@@ -4,7 +4,7 @@ from wallet import NotaryWallet
 from services.account_service import AccountService
 from services.notarization_service import NotarizationService
 from message import SecureMessage
-from blockcypher import get_transaction_details
+import base58
 import hashlib
 
 app = FlaskAPI(__name__)
@@ -23,7 +23,8 @@ def build_token(nonce):
     nonce_hash = hashlib.sha256(nonce).digest()
     fingerprint_hash = hashlib.sha256(build_fingerprint()).digest()
     token = hashlib.sha256(nonce_hash + fingerprint_hash).digest()
-    return token.encode("hex")
+    encoded = base58.base58_check_encode(0x80, token.encode("hex"))
+    return encoded
 
 
 def validate_token(nonce, token):
@@ -180,18 +181,19 @@ def notarization(address, document_hash):
             inbound_payload = request.data
             str_notarization_input_data = secure_message.get_message_from_secure_payload(inbound_payload)
             notarization_input_data = json.loads(str_notarization_input_data)
-            notarization_input_data['document_hash'] = document_hash
-            notarization_input_data['address'] = address
-            notarization_output_data = notarization_service.notarize(notarization_input_data)
-            authenticated_response = rotate_authentication_token(address)
-            if notarization_output_data is not None:
-                account_data = account_service.get_account_by_address(address)
-                outbound_payload = secure_message.create_secure_payload(account_data['public_key'], json.dumps(notarization_output_data))
-                authenticated_response.data = json.dumps(outbound_payload)
+            if notarization_input_data['document_hash'] == document_hash:
+                notarization_input_data['address'] = address
+                notarization_output_data = notarization_service.notarize(notarization_input_data)
+                authenticated_response = rotate_authentication_token(address)
+                if notarization_output_data is not None:
+                    account_data = account_service.get_account_by_address(address)
+                    outbound_payload = secure_message.create_secure_payload(account_data['public_key'], json.dumps(notarization_output_data))
+                    authenticated_response.data = json.dumps(outbound_payload)
+                else:
+                    authenticated_response.status_code = 500
+                return authenticated_response
             else:
-                authenticated_response.status_code = 500
-
-            return authenticated_response
+                return unauthenticated_response
         else:
             return unauthenticated_response
     return unauthenticated_response
@@ -217,7 +219,12 @@ def notarization_status(address, document_hash):
         if authenticated(address):
             authenticated_response = rotate_authentication_token(address)
             status_data = notarization_service.get_notarization_status(document_hash)
-            authenticated_response.data = status_data
+            if status_data is not None:
+                account_data = account_service.get_account_by_address(address)
+                outbound_payload = secure_message.create_secure_payload(account_data['public_key'], json.dumps(status_data))
+                authenticated_response.data = json.dumps(outbound_payload)
+            else:
+                authenticated_response.data = status_data
             return authenticated_response
         else:
             return unauthenticated_response
