@@ -6,6 +6,9 @@ if os.path.isfile("notarywallet.data"):
 else:    ## Show an error ##
      print("Error: %s file not found" % "notarywallet.data")
 
+with open('testnotarizecontent.txt', 'wb') as output:
+        output.write(os.urandom(64).encode("hex"))
+
 
 result = notary.mainMethod(['register', '-email', 'rajumail@gmail.com','-password', 'test123'])
 print result
