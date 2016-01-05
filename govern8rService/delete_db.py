@@ -1,8 +1,11 @@
 from __future__ import print_function # Python 2/3 compatibility
 import boto3
 import botocore
+import configuration
 
-dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
+config = configuration.NotaryConfiguration("Server")
+
+dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url=config.get_db_url())
 try:
     account_table = dynamodb.Table('Account')
     account_table.delete()
