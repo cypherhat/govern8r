@@ -1,0 +1,16 @@
+usage: test_cli.py [-h] [-password PASSWORD] [-email EMAIL] [-file FILE]
+                   [-metadata METADATA] [-confirm_url CONFIRM_URL]
+                   {register,confirm,notarize,login,notarystatus}
+
+positional arguments:
+  {register,confirm,notarize,login,notarystatus}
+                        Name of the command.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -password PASSWORD    the password used to access the wallet.
+  -email EMAIL          the email address of the registered user.
+  -file FILE            Fully qualified name of the file to notarize.
+  -metadata METADATA    File containing metadata of the file to notarize.
+  -confirm_url CONFIRM_URL
+                        Confirmation URL to confirm an account.

@@ -9,6 +9,9 @@ import os
 import random
 import time
 from bitcoinlib.core.key import CPubKey
+import configuration
+
+config = configuration.NotaryConfiguration()
 
 
 def to_bytes(x): return x if bytes == str else x.encode()
@@ -42,7 +45,7 @@ class AccountService(object):
     def __init__(self, wallet):
         # Initializes some dictionaries to store accounts
         self.wallet = wallet
-        self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
+        self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url=config.get_db_url())
         try:
             self.account_table = self.dynamodb.Table('Account')
             print("Account Table is %s" % self.account_table.table_status)
@@ -92,17 +95,17 @@ class AccountService(object):
                 account['account_status'] = 'PENDING'
                 account['address'] = str(address)
                 self.account_table.put_item(Item=account)
-                self.send_confirmation_email(account)
-                return True
+                return self.send_confirmation_email(account)
             else:
-                return False
+                return None
         else:
-            return False
+            return None
 
     def send_confirmation_email(self, account):
-        confirmation_url = 'http://127.0.0.1:5000/govern8r/api/v1/account/'+account['address']+'/'+account['nonce']
+        server_url=config.get_server_url()
+        confirmation_url = server_url+'/api/v1/account/'+account['address']+'/'+account['nonce']
         print(confirmation_url)
-        return True
+        return confirmation_url
 
     def update_account_status(self, account, new_status):
         self.account_table.update_item(

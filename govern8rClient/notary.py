@@ -12,6 +12,8 @@ from configuration import NotaryConfiguration
 
 config = NotaryConfiguration()
 
+cookies = None
+
 
 class Notary(object):
     def __init__(self, password):
@@ -32,9 +34,15 @@ class Notary(object):
         str_message = json.dumps(message)
         payload = self.secure_message.create_secure_payload(self.other_party_public_key_hex, str_message)
         response = requests.put(self.notary_url + '/api/v1/account/' + address, data=payload)
-        return response.status_code
+        payload = json.loads(response.content)
+        print payload
+        if config.get_test_mode():
+             return payload['confirm_url']
+        else:
+             return response.status_code
 
     def login(self):
+        global cookies
         address = str(self.wallet.get_bitcoin_address())
         response = requests.get(self.notary_url + '/api/v1/challenge/' + address)
         payload = json.loads(response.content)
@@ -43,7 +51,7 @@ class Notary(object):
             payload = self.secure_message.create_secure_payload(self.other_party_public_key_hex, message)
             response = requests.put(self.notary_url + '/api/v1/challenge/' + address, data=payload)
             cookies = requests.utils.dict_from_cookiejar(response.cookies)
-            self.govenr8r_token = cookies['govenr8r_token']
+            self.govenr8r_token = cookies['govern8r_token']
             return True
         else:
             self.govenr8r_token = 'UNAUTHENTICATED'
@@ -61,6 +69,7 @@ class Notary(object):
         return self.govenr8r_token != 'UNAUTHENTICATED'
 
     def notarize_file(self, path_to_file, metadata_file):
+        global cookies
         if not self.authenticated():
             self.login()
 
@@ -70,15 +79,19 @@ class Notary(object):
 
         address = str(self.wallet.get_bitcoin_address())
 
-        with open(metadata_file, 'rb') as meta_fp:
-            self.metadata = meta_fp.read()
-        document_hash = hashfile.hash_file(path_to_file)
+        meta_data = json.loads(metadata_file.read())
+        document_hash = hashfile.hash_file_fp(path_to_file)
+        meta_data['document_hash'] = document_hash
+        print json.dumps(meta_data)
         notarization_payload = self.secure_message.create_secure_payload(self.other_party_public_key_hex,
-                                                                         json.dumps(self.metadata))
+                                                                         json.dumps(meta_data))
+
 
         response = requests.put(self.notary_url + '/api/v1/account/' + address + '/notarization/' + document_hash,
-                                cookies='{ \'govenr8r_token\' :' + self.govenr8r_token + '}', data=notarization_payload)
+                                cookies=cookies, data=notarization_payload)
         payload = json.loads(response.content)
+        print "payload"
+        print payload
         if self.secure_message.verify_secure_payload(self.other_party_address, payload):
             message = self.secure_message.get_message_from_secure_payload(payload)
             return message['transaction_hash']
@@ -97,6 +110,7 @@ def mainMethod(cmd_str=None):
     parser.add_argument("-file", type=file, help="Fully qualified name of the file to notarize.")
     parser.add_argument("-metadata", type=file, help="File containing metadata of the file to notarize.")
     parser.add_argument("-confirm_url", type=str, help="Confirmation URL to confirm an account.")
+    parser.add_argument("-transaction_id", type=str, help="Transaction ID of a notary")
 
     if cmd_str is None:
         args = parser.parse_args()
@@ -116,29 +130,37 @@ def mainMethod(cmd_str=None):
             print "register command needs email address"
         else:
             print args.email
-            print notary.register_user(args.email)
+            result=notary.register_user(args.email)
+            print result
+            return result
     elif command == "confirm":
         if not args.confirm_url:
             print "confirm command needs url"
         else:
-            print args.confirmurl
-            Notary.confirm_registration(args.confirm_url)
+            print args.confirm_url
+            return Notary.confirm_registration(args.confirm_url)
     elif command == "notarize":
+        if not args.metadata:
+            print "notarize command needs metadata file"
+            return
+
         if not args.file:
             print "notarize command needs file"
-        else:
-            print args.file
-            print args.metadata
-            notary.notarize_file(args.file, args.metadata)
+            return
+        #print args.file
+        #print args.metadata
+        return notary.notarize_file(args.file, args.metadata)
     elif command == "login":
-        notary.login()
+        return  notary.login()
     elif command == "notarystatus":
-        if not args.transactionid:
-            print "confirm command needs transcationid"
+        if not args.transaction_id:
+            print "confirm command needs transcation_id"
         else:
-            print args.transactionid
+            print args.transaction_id
             status = Notary.notary_status(args.transcationid)
+            print "The Transcation status is"
             print status
+            return status
     else:
         print "no command"
 

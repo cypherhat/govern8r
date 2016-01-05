@@ -6,7 +6,9 @@ from services.notarization_service import NotarizationService
 from message import SecureMessage
 import base58
 import hashlib
+import configuration
 
+config = configuration.NotaryConfiguration()
 app = FlaskAPI(__name__)
 wallet = NotaryWallet("foobar")
 account_service = AccountService(wallet)
@@ -134,10 +136,20 @@ def account(address):
         registration_data = json.loads(str_registration_data)
 
         if request.method == 'PUT':
-            if not account_service.create_account(address, registration_data):
+            result= account_service.create_account(address, registration_data)
+            if result is None:
                 return bad_response
             else:
-                return good_response
+                if not config.get_test_mode():
+                      return good_response
+                # Send the confirm_url in test mode so the testing script works.
+                data = {
+                    'confirm_url': result
+                }
+                js = json.dumps(data)
+                resp = Response(js, status=200, mimetype='application/json')
+                return resp
+
         elif request.method == 'GET' and authenticated(address):
             account_data = account_service.get_account_by_address(address)
             outbound_payload = secure_message.create_secure_payload(account_data['public_key'], json.dumps(account_data))
@@ -178,6 +190,7 @@ def notarization(address, document_hash):
     document_hash : string
        The hash of the document.
     """
+    auth_result = authenticated(address)
 
     js = json.dumps({})
     unauthenticated_response = Response(js, status=401, mimetype='application/json')
@@ -186,7 +199,7 @@ def notarization(address, document_hash):
     authenticated_response = rotate_authentication_token(address)
 
     if request.method == 'PUT':
-        if authenticated(address):
+        if auth_result:
             if previously_notarized(document_hash):
                 authenticated_response.status_code = 500
                 return authenticated_response
@@ -205,8 +218,10 @@ def notarization(address, document_hash):
                     authenticated_response.status_code = 500
                 return authenticated_response
             else:
+                print "document hash doesn't match"
                 return unauthenticated_response
         else:
+            print "unauthenticated"
             return unauthenticated_response
     return unauthenticated_response
 
