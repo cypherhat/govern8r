@@ -47,6 +47,13 @@ def rotate_authentication_token(address):
     return authenticated_response
 
 
+def previously_notarized(document_hash):
+    notarization_data = notarization_service.get_notarization_by_document_hash(document_hash)
+    if notarization_data is not None:
+        return True
+    else:
+        return False
+
 @app.route("/govern8r/api/v1/pubkey", methods=['GET'])
 def pubkey():
     """
@@ -176,15 +183,20 @@ def notarization(address, document_hash):
     unauthenticated_response = Response(js, status=401, mimetype='application/json')
     unauthenticated_response.set_cookie('govern8r_token', 'UNAUTHENTICATED')
 
+    authenticated_response = rotate_authentication_token(address)
+
     if request.method == 'PUT':
         if authenticated(address):
+            if previously_notarized(document_hash):
+                authenticated_response.status_code = 500
+                return authenticated_response
             inbound_payload = request.data
             str_notarization_input_data = secure_message.get_message_from_secure_payload(inbound_payload)
             notarization_input_data = json.loads(str_notarization_input_data)
+
             if notarization_input_data['document_hash'] == document_hash:
                 notarization_input_data['address'] = address
                 notarization_output_data = notarization_service.notarize(notarization_input_data)
-                authenticated_response = rotate_authentication_token(address)
                 if notarization_output_data is not None:
                     account_data = account_service.get_account_by_address(address)
                     outbound_payload = secure_message.create_secure_payload(account_data['public_key'], json.dumps(notarization_output_data))
