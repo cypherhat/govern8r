@@ -52,6 +52,6 @@ class NotaryConfiguration(object):
             raise ValueError('Value does not exist!')
     def get_test_mode(self):
         if self.config.has_option('DEFAULT', 'test_mode'):
-            return self.config.get('DEFAULT', 'test_mode')
+            return self.config.getboolean('DEFAULT', 'test_mode')
         else:
             raise ValueError('Value does not exist!')
