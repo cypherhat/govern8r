@@ -8,12 +8,18 @@ from message import SecureMessage
 from bitcoinlib.core.key import CPubKey
 from bitcoinlib.wallet import P2PKHBitcoinAddress
 from blockcypher import get_transaction_details
+import configuration
+
+config = configuration.NotaryConfiguration("Client")
 
 
 class Notary(object):
-    def __init__(self, notary_url, password):
-        self.notary_url = notary_url
-        self.wallet = NotaryWallet(password)
+    def __init__(self, password):
+        self.notary_url = config.get_server_url()
+        if not password:
+            self.wallet = NotaryWallet(config.get_wallet_password())
+        else:
+            self.wallet = NotaryWallet(password)
         self.secure_message = SecureMessage(self.wallet)
         response = requests.get(self.notary_url + '/api/v1/pubkey')
         data = response.json()
@@ -86,7 +92,6 @@ class Notary(object):
 
 
 def main():
-    notary_url = 'http://127.0.0.1:5000/govern8r'
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=['register', 'confirm', 'notarize', 'login', 'notarystatus'],
                         help="Name of the command.")
@@ -96,11 +101,8 @@ def main():
     parser.add_argument("-metadata", type=file, help="File containing metadata of the file to notarize.")
     parser.add_argument("-confirm_url", type=str, help="Confirmation URL to confirm an account.")
     args = parser.parse_args()
-    if not args.password:
-        print("Password is required!")
-        return
 
-    notary = Notary(notary_url, args.password)
+    notary = Notary(args.password)
     command = args.command
 
     print command

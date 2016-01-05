@@ -5,8 +5,9 @@ from blockcypher import embed_data, get_transaction_details
 from boto3.dynamodb.conditions import Key
 import hashlib
 from datetime import datetime
-
-blockcypher_token = "a65c446def8ad58f07a8f03272268bfc"
+import configuration
+config = configuration.NotaryConfiguration("Server")
+blockcypher_token = config.get_block_cypher_token()
 coin_network = 'btc-testnet'
 
 
@@ -36,7 +37,7 @@ def check_notarization(notarization):
 class NotarizationService(object):
     def __init__(self, wallet):
         self.wallet = wallet
-        self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url="http://localhost:8000")
+        self.dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url=config.get_db_url())
         try:
             self.notarization_table = self.dynamodb.Table('Notarization')
             print("Notarization Table is %s" % self.notarization_table.table_status)
