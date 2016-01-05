@@ -6,9 +6,13 @@ from boto3.dynamodb.conditions import Key
 import hashlib
 from datetime import datetime
 import configuration
-config = configuration.NotaryConfiguration("Server")
+config = configuration.NotaryConfiguration()
 blockcypher_token = config.get_block_cypher_token()
-coin_network = 'btc-testnet'
+
+
+coin_network = 'btc'
+if config.get_test_mode():
+    coin_network = 'btc-testnet'
 
 
 def add_to_blockchain(data_value):

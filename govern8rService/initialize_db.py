@@ -4,7 +4,7 @@ import botocore
 from boto3.dynamodb.conditions import Key
 import configuration
 
-config = configuration.NotaryConfiguration("Server")
+config = configuration.NotaryConfiguration()
 
 dynamodb = boto3.resource('dynamodb', region_name='us-east-1', endpoint_url=config.get_db_url())
 try:
