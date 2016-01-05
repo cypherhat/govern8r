@@ -3,23 +3,20 @@ import argparse
 import requests
 import json
 import hashfile
-from wallet import NotaryWallet
+from encrypted_wallet import NotaryWallet
 from message import SecureMessage
 from bitcoinlib.core.key import CPubKey
 from bitcoinlib.wallet import P2PKHBitcoinAddress
 from blockcypher import get_transaction_details
-import configuration
+from configuration import NotaryConfiguration
 
-config = configuration.NotaryConfiguration("Client")
+config = NotaryConfiguration()
 
 
 class Notary(object):
     def __init__(self, password):
         self.notary_url = config.get_server_url()
-        if not password:
-            self.wallet = NotaryWallet(config.get_wallet_password())
-        else:
-            self.wallet = NotaryWallet(password)
+        self.wallet = NotaryWallet(password)
         self.secure_message = SecureMessage(self.wallet)
         response = requests.get(self.notary_url + '/api/v1/pubkey')
         data = response.json()
@@ -91,7 +88,7 @@ class Notary(object):
         return status_value['confirmed']
 
 
-def main():
+def mainMethod(cmd_str=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=['register', 'confirm', 'notarize', 'login', 'notarystatus'],
                         help="Name of the command.")
@@ -100,30 +97,33 @@ def main():
     parser.add_argument("-file", type=file, help="Fully qualified name of the file to notarize.")
     parser.add_argument("-metadata", type=file, help="File containing metadata of the file to notarize.")
     parser.add_argument("-confirm_url", type=str, help="Confirmation URL to confirm an account.")
-    args = parser.parse_args()
+
+    if cmd_str is None:
+        args = parser.parse_args()
+    else:
+        args = parser.parse_args(cmd_str)
 
     notary = Notary(args.password)
     command = args.command
 
-    print command
+    if not args.password:
+        print("Password is required!")
+        return
+
+    print "Running " + command + " command"
     if command == "register":
-        print "running register command"
         if not args.email:
             print "register command needs email address"
         else:
             print args.email
-            notary.register_user(args.email)
-
+            print notary.register_user(args.email)
     elif command == "confirm":
-        print "running confirm command"
         if not args.confirm_url:
             print "confirm command needs url"
         else:
             print args.confirmurl
             Notary.confirm_registration(args.confirm_url)
     elif command == "notarize":
-
-        print "running notarize command"
         if not args.file:
             print "notarize command needs file"
         else:
@@ -133,7 +133,6 @@ def main():
     elif command == "login":
         notary.login()
     elif command == "notarystatus":
-        print "running notarystatus command"
         if not args.transactionid:
             print "confirm command needs transcationid"
         else:
@@ -145,4 +144,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    mainMethod()

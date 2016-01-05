@@ -1,6 +1,6 @@
 from flask import request, Response, json
 from flask_api import FlaskAPI
-from wallet import NotaryWallet
+from encrypted_wallet import NotaryWallet
 from services.account_service import AccountService
 from services.notarization_service import NotarizationService
 from message import SecureMessage
