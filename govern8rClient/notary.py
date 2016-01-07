@@ -94,6 +94,8 @@ class Notary(object):
         print payload
         if self.secure_message.verify_secure_payload(self.other_party_address, payload):
             message = self.secure_message.get_message_from_secure_payload(payload)
+            print message
+            message=json.loads(message)
             return message['transaction_hash']
 
     def notary_status(self, transaction_id):
@@ -157,7 +159,7 @@ def mainMethod(cmd_str=None):
             print "confirm command needs transcation_id"
         else:
             print args.transaction_id
-            status = Notary.notary_status(args.transcationid)
+            status = notary.notary_status(args.transaction_id)
             print "The Transcation status is"
             print status
             return status

@@ -10,13 +10,12 @@ config = configuration.NotaryConfiguration()
 blockcypher_token = config.get_block_cypher_token()
 
 
-coin_network = 'btc'
-if config.get_test_mode():
-    coin_network = 'btc-testnet'
-
 
 def add_to_blockchain(data_value):
     try:
+        coin_network = 'btc'
+        if config.get_test_mode():
+              coin_network = 'btc-testnet'
         response = embed_data(to_embed=data_value, api_key=blockcypher_token, data_is_hex=True,
                               coin_symbol=coin_network)
         transaction_hash = response['hash']
@@ -116,6 +115,9 @@ class NotarizationService(object):
             return response['Items'][0]
 
     def get_notarization_status(self, document_hash):
+        coin_network = 'btc'
+        if config.get_test_mode():
+              coin_network = 'btc-testnet'
         notarization_data = self.get_notarization_by_document_hash(document_hash)
         status_data = get_transaction_details(notarization_data['transaction_hash'], coin_network)
         if status_data is None:
