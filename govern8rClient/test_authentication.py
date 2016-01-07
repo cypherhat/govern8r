@@ -33,6 +33,7 @@ response = requests.put('http://127.0.0.1:5000/govern8r/api/v1/challenge/'+addre
 cookies = requests.utils.dict_from_cookiejar(response.cookies)
 govern8r_token = cookies['govern8r_token']
 print("Token from authentication: %s" % govern8r_token)
+print("Status: %s" % response.status_code)
 
 ## Test Authentication against notarization service
 
