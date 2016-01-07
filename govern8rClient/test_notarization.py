@@ -50,7 +50,7 @@ metadata = {
 }
 
 
-document_hash = hashfile.hash_file('/Users/tssbi08/govern8r/IP/Beeline.m4a')
+document_hash = hashfile.hash_file('/Users/tssbi08/govern8r/IP/Beave.m4a')
 metadata['document_hash'] = document_hash
 
 notarization_payload = secure_message.create_secure_payload(other_party_public_key_hex, json.dumps(metadata))
