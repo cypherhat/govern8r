@@ -24,6 +24,7 @@ else:
     if confirm_result == 200 :
         login_result = notary.mainMethod(['login', '-password', 'test123'])
         if login_result :
+            print notary.mainMethod(['uploadfile', '-file', 'testnotarizecontent.txt','-password', 'test123'])
             transaction_id = notary.mainMethod(['notarize', '-file', 'testnotarizecontent.txt','-metadata','testmetadata.txt','-password', 'test123'])
             if transaction_id is not None :
                  transaction_status = notary.mainMethod(['notarystatus', "-transaction_id",transaction_id, '-password', 'test123'])

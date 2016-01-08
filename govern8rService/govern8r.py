@@ -272,13 +272,12 @@ def notarization_status(address, document_hash):
     return authenticated_response
 
 
-@app.route('/govern8r/api/v1/upload', methods= ['GET', 'POST'])
-@login_required
-def upload_file():
+@app.route('/govern8r/api/v1/upload/<address>/name/<file_name>', methods= ['GET', 'POST'])
+def upload_file(address,file_name):
     print "upload file method"
     if request.method == 'POST':
         f = request.files['files']
-        f.save(config.get_uploads_directory()+'/any_file_name.txt')
+        f.save(config.get_uploads_directory()+'/'+file_name)
         return '200'
     else:
         return 'Upload Page'
