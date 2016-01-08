@@ -192,7 +192,9 @@ def put_account(address):
     if result is None:
         return bad_response
     else:
-        print(result)
+        if config.get_test_mode():
+            good_response.data = result
+            print(result)
         return good_response
 
 
