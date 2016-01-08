@@ -58,6 +58,6 @@ class NotaryConfiguration(object):
 
     def get_uploads_directory(self):
         if self.config.has_option('DEFAULT', 'uploads_directory'):
-            return self.config.getboolean('DEFAULT', 'uploads_directory')
+            return self.config.get('DEFAULT', 'uploads_directory')
         else:
             raise ValueError('Value does not exist!')
