@@ -98,18 +98,43 @@ class Notary(object):
             message=json.loads(message)
             return message['transaction_hash']
 
+    def upload_file(self, path_to_file):
+        global cookies
+        if not self.authenticated():
+            self.login()
+
+        if not self.authenticated():
+            print "not able to login"
+            return None
+        files = {'files': path_to_file}
+        r = requests.post(self.notary_url + '/api/v1/upload', files=files)
+        print r.status_code
+        return r.status_code
+
     def notary_status(self, transaction_id):
+        if not self.authenticated():
+            self.login()
+
+        if not self.authenticated():
+            print "not able to login"
+            return None
         status_value = get_transaction_details(transaction_id, coin_symbol="btc-testnet")
         return status_value['confirmed']
 
 
 def mainMethod(cmd_str=None):
+    """
+
+    Returns
+    -------
+    object
+    """
     parser = argparse.ArgumentParser()
-    parser.add_argument("command", choices=['register', 'confirm', 'notarize', 'login', 'notarystatus'],
+    parser.add_argument("command", choices=['register', 'confirm', 'notarize', 'login', 'notarystatus','uploadfile'],
                         help="Name of the command.")
     parser.add_argument("-password", type=str, help="the password used to access the wallet.")
     parser.add_argument("-email", type=str, help="the email address of the registered user.")
-    parser.add_argument("-file", type=file, help="Fully qualified name of the file to notarize.")
+    parser.add_argument("-file", type=file, help="Fully qualified name of the file.")
     parser.add_argument("-metadata", type=file, help="File containing metadata of the file to notarize.")
     parser.add_argument("-confirm_url", type=str, help="Confirmation URL to confirm an account.")
     parser.add_argument("-transaction_id", type=str, help="Transaction ID of a notary")
@@ -152,6 +177,14 @@ def mainMethod(cmd_str=None):
         #print args.file
         #print args.metadata
         return notary.notarize_file(args.file, args.metadata)
+    elif command == "upload":
+
+        if not args.file:
+            print "upload command needs file"
+            return
+        #print args.file
+        #print args.metadata
+        return notary.upload_file(args.file)
     elif command == "login":
         return  notary.login()
     elif command == "notarystatus":
