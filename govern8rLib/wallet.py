@@ -4,7 +4,6 @@ import os
 from bitcoinlib.wallet import CBitcoinSecret, P2PKHBitcoinAddress
 from bitcoinlib.signmessage import BitcoinMessage, VerifyMessage, SignMessage
 import base58
-import encrypt
 
 section_name = 'NotaryWallet'
 file_name = 'notarywallet.data'
