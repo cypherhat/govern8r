@@ -55,13 +55,11 @@ metadata['document_hash'] = document_hash
 
 response = requests.get('http://127.0.0.1:5000/govern8r/api/v1/account/' + address + '/notarization/' + document_hash + '/status', cookies=cookies)
 if response.status_code == 404:
-    cookies = requests.utils.dict_from_cookiejar(response.cookies)
-    notarization_payload = secure_message.create_secure_payload(other_party_public_key_hex, json.dumps(metadata))
-    response = requests.put('http://127.0.0.1:5000/govern8r/api/v1/account/' + address + '/notarization/' + document_hash,
-                    cookies=cookies, data=notarization_payload)
-    if response.content is not None:
-        payload = json.loads(response.content)
-        if secure_message.verify_secure_payload(other_party_address, payload):
-            message = secure_message.get_message_from_secure_payload(payload)
-            print(message)
+    print ('No notarization!')
+elif response.content is not None:
+    str_content = response.content
+    payload = json.loads(response.content)
+    if secure_message.verify_secure_payload(other_party_address, payload):
+        message = secure_message.get_message_from_secure_payload(payload)
+        print(message)
 
