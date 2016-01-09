@@ -50,11 +50,13 @@ metadata = {
 }
 
 
-document_hash = hashfile.hash_file('/Users/tssbi08/govern8r/IP/Beave.m4a')
+document_hash = hashfile.hash_file('/Users/tssbi08/govern8r/IP/Wake_Up.m4a')
 metadata['document_hash'] = document_hash
 
 response = requests.get('http://127.0.0.1:5000/govern8r/api/v1/account/' + address + '/notarization/' + document_hash + '/status', cookies=cookies)
-if response.content is not None:
+if response.status_code == 404:
+    print ('No notarization!')
+elif response.content is not None:
     str_content = response.content
     payload = json.loads(response.content)
     if secure_message.verify_secure_payload(other_party_address, payload):

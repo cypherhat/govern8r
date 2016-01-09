@@ -17,11 +17,16 @@ account_service = AccountService(wallet)
 notarization_service = NotarizationService(wallet)
 secure_message = SecureMessage(wallet)
 
-bad_response = Response(json.dumps({}), status=500, mimetype='application/json')
-bad_response.set_cookie('govern8r_token', 'UNAUTHENTICATED')
 
 unauthenticated_response = Response(json.dumps({}), status=401, mimetype='application/json')
 unauthenticated_response.set_cookie('govern8r_token', 'UNAUTHENTICATED')
+
+
+def get_bad_response(status_code):
+    bad_response = Response(json.dumps({}), status=status_code, mimetype='application/json')
+    govern8r_token = request.cookies.get('govern8r_token')
+    bad_response.set_cookie('govern8r_token', govern8r_token)
+    return bad_response
 
 
 def build_fingerprint():
@@ -37,13 +42,32 @@ def build_token(nonce):
     return encoded
 
 
+def previously_notarized(document_hash):
+    notarization_data = notarization_service.get_notarization_by_document_hash(document_hash)
+    if notarization_data is not None:
+        return True
+    else:
+        return False
+
+
 def validate_token(nonce, token):
     check_token = build_token(nonce)
     return check_token == token
 
 
-def authenticated():
+def authenticated(address):
+    if not hasattr(g, 'account_data'):
+        account_data = account_service.get_account_by_address(address)
+        if account_data is None:
+            return get_bad_response(404)
+        g.account_data = account_data
+
+    if g.account_data is None or g.account_data['nonce'] is None:
+        return False
+
     govern8r_token = request.cookies.get('govern8r_token')
+    if g.account_data is None or g.account_data['nonce'] is None or govern8r_token is None:
+        return False
     return validate_token(g.account_data['nonce'], govern8r_token)
 
 
@@ -54,37 +78,45 @@ def rotate_authentication_token():
     return authenticated_response
 
 
-def previously_notarized(document_hash):
-    notarization_data = notarization_service.get_notarization_by_document_hash(document_hash)
-    if notarization_data is not None:
-        return True
-    else:
-        return False
-
-
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         address = kwargs['address']
         if address is None:
-            return bad_response
-        if not authenticated():
+            return get_bad_response(500)
+        if not authenticated(address):
             return unauthenticated_response
         return f(*args, **kwargs)
     return decorated_function
 
 
-def address_based(f):
+def address_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         address = kwargs['address']
         if address is None:
-            return bad_response
+            return get_bad_response(500)
         else:
-            account_data = account_service.get_account_by_address(address)
-            if account_data is None:
-                return bad_response
-            g.account_data = account_data
+             if not hasattr(g, 'account_data'):
+                account_data = account_service.get_account_by_address(address)
+                if account_data is None:
+                    return get_bad_response(404)
+                g.account_data = account_data
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def notarization_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        document_hash = kwargs['document_hash']
+        if document_hash is None:
+            return get_bad_response(500)
+        else:
+            notarization_data = notarization_service.get_notarization_by_document_hash(document_hash)
+            if notarization_data is None:
+                return get_bad_response(404)
+            g.notarization_data = notarization_data
         return f(*args, **kwargs)
     return decorated_function
 
@@ -98,7 +130,7 @@ def security_required(f):
             raw_message = secure_message.get_message_from_secure_payload(payload)
             g.message = json.loads(raw_message)
         else:
-            return bad_response
+            return get_bad_response(403)
         return f(*args, **kwargs)
     return decorated_function
 
@@ -121,7 +153,7 @@ def pubkey():
 
 
 @app.route("/govern8r/api/v1/challenge/<address>", methods=['PUT'])
-@address_based
+@address_required
 @security_required
 def put_challenge(address):
     """
@@ -141,7 +173,7 @@ def put_challenge(address):
 
 
 @app.route("/govern8r/api/v1/challenge/<address>", methods=['GET'])
-@address_based
+@address_required
 def get_challenge(address):
     """
     Authentication
@@ -158,8 +190,8 @@ def get_challenge(address):
 
 
 @app.route("/govern8r/api/v1/account/<address>", methods=['GET'])
-@address_based
 @login_required
+@address_required
 def get_account(address):
     """
     Account registration
@@ -190,7 +222,7 @@ def put_account(address):
 
     result = account_service.create_account(address, g.message)
     if result is None:
-        return bad_response
+        return get_bad_response(500)
     else:
         if config.get_test_mode():
             good_response.data = result
@@ -199,7 +231,7 @@ def put_account(address):
 
 
 @app.route("/govern8r/api/v1/account/<address>/<nonce>", methods=['GET'])
-@address_based
+@address_required
 def confirm_account(address, nonce):
     """
     Account registration confirmation
@@ -216,9 +248,9 @@ def confirm_account(address, nonce):
 
 
 @app.route("/govern8r/api/v1/account/<address>/notarization/<document_hash>", methods=['PUT'])
-@address_based
-@security_required
 @login_required
+@address_required
+@security_required
 def notarization(address, document_hash):
     """
     Notarize document
@@ -250,8 +282,9 @@ def notarization(address, document_hash):
 
 
 @app.route("/govern8r/api/v1/account/<address>/notarization/<document_hash>/status", methods=['GET'])
-@address_based
 @login_required
+@notarization_required
+@address_required
 def notarization_status(address, document_hash):
     """
     Notarization status
@@ -263,6 +296,11 @@ def notarization_status(address, document_hash):
        The hash of the document.
     """
     authenticated_response = rotate_authentication_token()
+
+    if g.notarization_data is None:
+        authenticated_response.status_code = 404
+        return authenticated_response
+
     status_data = notarization_service.get_notarization_status(document_hash)
     if status_data is not None:
         outbound_payload = secure_message.create_secure_payload(g.account_data['public_key'], json.dumps(status_data))
@@ -272,20 +310,80 @@ def notarization_status(address, document_hash):
     return authenticated_response
 
 
-@app.route('/govern8r/api/v1/upload/<address>/name/<file_name>', methods= ['GET', 'POST'])
-def upload_file(address,file_name):
-    print "upload file method"
-    if request.method == 'POST':
-        f = request.files['files']
-        f.save(config.get_uploads_directory()+'/'+file_name)
-        return '200'
+@app.route('/govern8r/api/v1/account/<address>/document/<document_hash>', methods=['PUT'])
+@login_required
+@notarization_required
+@address_required
+def upload_document(address, document_hash):
+    """
+    Upload document
+    Parameters
+    ----------
+    address : string
+       The Bitcoin address of the client.
+    document_hash : string
+       The hash of the document.
+    """
+    authenticated_response = rotate_authentication_token()
+
+    if g.notarization_data is None:
+        authenticated_response.status_code = 404
     else:
-        return 'Upload Page'
+        f = request.files['document_content']
+        notarization_service.store_file(g.notarization_data, f)
+    return authenticated_response
+
+
+@app.route('/govern8r/api/v1/account/<address>/document/<document_hash>', methods=['GET'])
+@login_required
+@notarization_required
+@address_required
+def download_document(address, document_hash):
+    """
+    Upload document
+    Parameters
+    ----------
+    address : string
+       The Bitcoin address of the client.
+    document_hash : string
+       The hash of the document.
+    """
+    authenticated_response = rotate_authentication_token()
+
+    if g.notarization_data['address'] != g.account_data['address']:
+        unauthenticated_response.status_code = 403
+        return unauthenticated_response
+
+    return authenticated_response
+
+
+@app.route('/govern8r/api/v1/account/<address>/document/<document_hash>/status', methods=['GET'])
+@login_required
+@notarization_required
+@address_required
+def check_document_status(address, document_hash):
+    """
+    Upload document
+    Parameters
+    ----------
+    address : string
+       The Bitcoin address of the client.
+    document_hash : string
+       The hash of the document.
+    """
+    authenticated_response = rotate_authentication_token()
+    status_data = {'owner_address': g.notarization_data['address'],
+                   'document_status': g.notarization_data['document_status'],
+                   'document_hash': g.notarization_data['document_hash']}
+    outbound_payload = secure_message.create_secure_payload(g.account_data['public_key'], json.dumps(status_data))
+    authenticated_response.data = json.dumps(outbound_payload)
+
+    return authenticated_response
 
 
 @app.route("/govern8r/api/v1/account/<address>/test", methods=['GET'])
-@address_based
 @login_required
+@address_required
 def test_authentication(address):
     """
     Test authentication
