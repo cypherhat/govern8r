@@ -7,7 +7,6 @@ from encrypted_wallet import NotaryWallet
 from message import SecureMessage
 from bitcoinlib.core.key import CPubKey
 from bitcoinlib.wallet import P2PKHBitcoinAddress
-from blockcypher import get_transaction_details
 from configuration import NotaryConfiguration
 
 config = NotaryConfiguration()
@@ -119,15 +118,27 @@ class Notary(object):
         print response.status_code
         return response.status_code
 
-    def notary_status(self, transaction_id):
+    def notary_status(self, document_hash):
+        global cookies
         if not self.authenticated():
             self.login()
 
         if not self.authenticated():
             print "not able to login"
             return None
-        status_value = get_transaction_details(transaction_id, coin_symbol="btc-testnet")
-        return status_value['confirmed']
+
+        address = str(self.wallet.get_bitcoin_address())
+
+        response = requests.get(self.notary_url+'/api/v1/account/' + address + '/notarization/' + document_hash + '/status', cookies=cookies)
+        if response.status_code == 404:
+             print ('No notarization!')
+             return None
+        elif response.content is not None:
+             str_content = response.content
+             payload = json.loads(response.content)
+             if self.secure_message.verify_secure_payload(self.other_party_address, payload):
+                  message = self.secure_message.get_message_from_secure_payload(payload)
+                  print(message)
 
 
 def mainMethod(cmd_str=None):
