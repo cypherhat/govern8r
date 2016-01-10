@@ -10,8 +10,7 @@ from bitcoinlib.wallet import P2PKHBitcoinAddress
 from configuration import NotaryConfiguration
 
 config = NotaryConfiguration()
-
-cookies = None
+notary  = None
 
 
 class Notary(object):
@@ -36,6 +35,7 @@ class Notary(object):
         self.other_party_public_key = CPubKey(other_party_public_key_decoded)
         self.other_party_address = P2PKHBitcoinAddress.from_pubkey(self.other_party_public_key)
         self.govenr8r_token = 'UNAUTHENTICATED'
+        self.cookies = None
 
     def register_user(self, email):
         '''
@@ -64,6 +64,34 @@ class Notary(object):
         payload = response.content
         print payload
         return response.status_code
+    def rotate_the_cookie (self,response):
+        '''
+           utility to rotate the cookie.
+        Parameters
+        ----------
+        response
+
+        Returns
+        -------
+
+        '''
+        if response.cookies is not None:
+            self.cookies = None
+            self.govenr8r_token = 'UNAUTHENTICATED'
+            return
+
+
+        self.cookies = requests.utils.dict_from_cookiejar(response.cookies)
+        if self.cookies is not None:
+            self.govenr8r_token = 'UNAUTHENTICATED'
+            return
+
+        if 'govern8r_token' in self.cookies:
+            self.govenr8r_token = self.cookies['govern8r_token']
+        else :
+            self.govenr8r_token = 'UNAUTHENTICATED'
+
+
 
     def login(self):
         '''
@@ -76,7 +104,6 @@ class Notary(object):
              basically true or false.
 
         '''
-        global cookies
         #call the server to get the challenge URL.
         self.govenr8r_token = 'UNAUTHENTICATED'
         address = str(self.wallet.get_bitcoin_address())
@@ -97,8 +124,7 @@ class Notary(object):
             #process the response.
             if response.status_code != 200:
                  return False
-            cookies = requests.utils.dict_from_cookiejar(response.cookies)
-            self.govenr8r_token = cookies['govern8r_token']
+            self.rotate_the_cookie(response)
             return True
         else:
             self.govenr8r_token = 'UNAUTHENTICATED'
@@ -111,9 +137,9 @@ class Notary(object):
         -------
 
         '''
-        global cookies
+
         self.govenr8r_token = 'UNAUTHENTICATED'
-        cookies = None
+        self.cookies = None
 
     @staticmethod
     def confirm_registration(confirmation_url):
@@ -153,7 +179,6 @@ class Notary(object):
            returns the transaction hash and document hash.
 
         '''
-        global cookies
         address = str(self.wallet.get_bitcoin_address())
         meta_data = json.loads(metadata_file.read())
 
@@ -167,15 +192,13 @@ class Notary(object):
 
         # make the rest call.
         response = requests.put(self.notary_url + '/api/v1/account/' + address + '/notarization/' + document_hash,
-                                cookies=cookies, data=notarization_payload)
+                                cookies=self.cookies, data=notarization_payload)
 
         #process the response
         if response.status_code != 200:
                  return None
         #store the rotated cookie.
-
-        cookies = requests.utils.dict_from_cookiejar(response.cookies)
-        self.govenr8r_token = cookies['govern8r_token']
+        self.rotate_the_cookie(response)
 
         #process the returned payload
         payload = json.loads(response.content)
@@ -199,7 +222,6 @@ class Notary(object):
          the http status from the server
 
         '''
-        global cookies
         address = str(self.wallet.get_bitcoin_address())
         files = {'files': path_to_file}
         print repr(path_to_file.name)
@@ -207,8 +229,9 @@ class Notary(object):
 
         #call the server
         response = requests.post(self.notary_url + '/api/v1/upload/' + address + '/name/' + path_to_file.name,
-                                 cookies=cookies, files=files)
+                                 cookies=self.cookies, files=files)
 
+        self.rotate_the_cookie(response)
         #process the response
         if response.status_code != 200:
                  return None
@@ -228,11 +251,13 @@ class Notary(object):
         -------
              status value.
         '''
-        global cookies
+
         address = str(self.wallet.get_bitcoin_address())
         response = requests.get(
             self.notary_url + '/api/v1/account/' + address + '/notarization/' + document_hash + '/status',
-            cookies=cookies)
+            cookies=self.cookies)
+
+        self.rotate_the_cookie(response)
         if response.status_code != 200:
             print ('No notarization!')
             return None
@@ -242,6 +267,8 @@ class Notary(object):
                 message = self.secure_message.get_message_from_secure_payload(payload)
                 print(message)
                 return message
+
+
 
 
 def login_if_needed(notary,command):
@@ -268,6 +295,7 @@ def main_method(cmd_str=None):
     -------
 
     '''
+    global notary
     parser = argparse.ArgumentParser()
     parser.add_argument("command", choices=['register', 'confirm', 'notarize', 'login', 'notarystatus', 'uploadfile'],
                         help="Name of the command.")
@@ -282,8 +310,8 @@ def main_method(cmd_str=None):
         args = parser.parse_args()
     else:
         args = parser.parse_args(cmd_str)
-
-    notary = Notary(args.password)
+    if notary is None :
+        notary = Notary(args.password)
     command = args.command
 
 
