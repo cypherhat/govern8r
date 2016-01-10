@@ -118,7 +118,7 @@ class Notary(object):
             #create another payload with the signed challenge message.
             payload = self.secure_message.create_secure_payload(self.other_party_public_key_hex, message)
 
-            #call the server with seucre payload
+            #call the server with secure payload
             response = requests.put(self.notary_url + '/api/v1/challenge/' + address, data=payload)
 
             #process the response.

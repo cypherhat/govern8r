@@ -1,11 +1,12 @@
 import requests
 import json
 import hashfile
-
+import file_stream_encrypt
 from bitcoinlib.core.key import CPubKey
 from wallet import NotaryWallet
 from bitcoinlib.wallet import P2PKHBitcoinAddress
 from message import SecureMessage
+
 
 wallet = NotaryWallet("foobar")
 secure_message = SecureMessage(wallet)
@@ -39,6 +40,10 @@ print("Status: %s" % response.status_code)
 #Upload using PUT
 
 file_name = '/Users/tssbi08/govern8r/IP/README.txt'
+encrypted_file = '/Users/tssbi08/govern8r/IP/Encrypted_README.txt'
+
+file_stream_encrypt.encrypt_file(file_name,encrypted_file,"test123")
+
 document_hash = hashfile.hash_file(file_name)
 response = requests.get('http://127.0.0.1:5000/govern8r/api/v1/account/' + address + '/document/' + document_hash + '/status', cookies=cookies)
 if response.content is not None:
@@ -46,7 +51,7 @@ if response.content is not None:
         print ("Document not found!")
     elif response.status_code == 200:
         try:
-            files = {'document_content': open(file_name, 'rb')}
+            files = {'document_content': open(encrypted_file, 'rb')}
             r = requests.put('http://127.0.0.1:5000/govern8r/api/v1/account/'+address+'/document/'+document_hash, cookies=cookies, files=files)
             print r.status_code
         except requests.ConnectionError as e:
