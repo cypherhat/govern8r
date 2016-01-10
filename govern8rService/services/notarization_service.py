@@ -144,6 +144,7 @@ class NotarizationService(object):
             key = notarization['address']+'/'+notarization['document_hash']
             s3.Bucket('govern8r-notarized-documents').put_object(Key=key, Body=file_to_store, ACL='public-read')
             self.update_document_status(notarization, 'ON_FILE')
+            print ('https://bucket.s3.amazonaws.com'+'/'+key)
         except botocore.exceptions.ClientError as e:
             print (e.response['Error']['Code'])
         return None
