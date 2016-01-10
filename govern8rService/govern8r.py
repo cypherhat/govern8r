@@ -1,5 +1,6 @@
-from flask import request, Response, json, g, redirect, url_for
+from flask import request, Response, json, g, redirect
 from functools import wraps
+from urlparse import urljoin
 
 from flask_api import FlaskAPI
 from wallet import NotaryWallet
@@ -354,6 +355,9 @@ def download_document(address, document_hash):
         unauthenticated_response.status_code = 403
         return unauthenticated_response
 
+    bucket_url = 'https://bucket.s3.amazonaws.com'+'/'+address+'/'+document_hash
+    print(bucket_url)
+    redirect(bucket_url)
     return authenticated_response
 
 

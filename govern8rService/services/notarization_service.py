@@ -21,7 +21,7 @@ def add_to_blockchain(data_value):
         transaction_hash = response['hash']
         return transaction_hash
     except requests.ConnectionError as e:
-        print e
+        print(e.message)
         return None
 
 
@@ -88,6 +88,7 @@ class NotarizationService(object):
         if transaction_hash is not None:
             notarization['transaction_hash'] = transaction_hash
             notarization['date_created'] = datetime.now().isoformat(' ')
+            notarization['document_status'] = 'NOT_ON_FILE'
             if self.create_notarization(notarization):
                 return notarization
 
@@ -105,6 +106,18 @@ class NotarizationService(object):
             return False
 
         return True
+
+    def update_document_status(self, notarization, new_status):
+        self.notarization_table.update_item(
+            Key={
+                'document_hash': notarization['document_hash']
+            },
+            UpdateExpression="set document_status = :_status",
+            ExpressionAttributeValues={
+                ':_status': new_status
+            },
+            ReturnValues="UPDATED_NEW"
+        )
 
     def get_notarization_by_document_hash(self, document_hash):
         response = self.notarization_table.query(KeyConditionExpression=Key('document_hash').eq(document_hash))
@@ -124,3 +137,13 @@ class NotarizationService(object):
             return None
         else:
             return status_data
+
+    def store_file(self, notarization, file_to_store):
+        s3 = boto3.resource('s3')
+        try:
+            key = notarization['address']+'/'+notarization['document_hash']
+            s3.Bucket('govern8r-notarized-documents').put_object(Key=key, Body=file_to_store, ACL='public-read')
+            self.update_document_status(notarization, 'ON_FILE')
+        except botocore.exceptions.ClientError as e:
+            print (e.response['Error']['Code'])
+        return None
