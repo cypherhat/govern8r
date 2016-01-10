@@ -16,6 +16,16 @@ cookies = None
 
 class Notary(object):
     def __init__(self, password):
+        '''
+           constructs needed objects
+        Parameters
+        ----------
+        password  : takes the password of the wallet
+
+        Returns
+        -------
+
+        '''
         self.notary_url = config.get_server_url()
         self.wallet = NotaryWallet(password)
         self.secure_message = SecureMessage(self.wallet)
@@ -28,6 +38,16 @@ class Notary(object):
         self.govenr8r_token = 'UNAUTHENTICATED'
 
     def register_user(self, email):
+        '''
+           first step in registering an user to our system.
+        Parameters
+        ----------
+        email   : the email address of the user.
+
+        Returns
+        -------
+              the http response status code.
+        '''
         address = str(self.wallet.get_bitcoin_address())
         message = {'public_key': self.wallet.get_public_key_hex(), 'email': email}
         str_message = json.dumps(message)
@@ -42,6 +62,16 @@ class Notary(object):
              return response.status_code
 
     def login(self):
+        '''
+           the login procedure. I don't takes any parameters. it assumes the wallet was already
+           created and  opened during the Notary object construction.
+           The login procedure uses the private key to sign the challenge sent by the server.
+
+        Returns
+        -------
+             basically true or false.
+
+        '''
         global cookies
         address = str(self.wallet.get_bitcoin_address())
         response = requests.get(self.notary_url + '/api/v1/challenge/' + address)
@@ -58,17 +88,55 @@ class Notary(object):
             return False
 
     def logout(self):
+        '''
+         basically it clears the cookie stored locally in memory.
+        Returns
+        -------
+
+        '''
+        global cookies
         self.govenr8r_token = 'UNAUTHENTICATED'
+        cookies = None
+
 
     @staticmethod
     def confirm_registration(confirmation_url):
+        '''
+           Confirmation of the account is generally done out of band using email,etc.
+            This code basically takes the url and call the server url as it is to confirm the account.
+        Parameters
+        ----------
+        confirmation_url
+
+        Returns
+        -------
+
+        '''
         response = requests.get(confirmation_url)
         return response.status_code
 
     def authenticated(self):
+        '''
+          basically checks for the token and if it is there it assumes the use login is done.
+        Returns
+        -------
+             True or False.
+        '''
         return self.govenr8r_token != 'UNAUTHENTICATED'
 
     def notarize_file(self, path_to_file, metadata_file):
+        '''
+        the main method to notarize a file.
+        Parameters
+        ----------
+        path_to_file   : the fp to the file. ( Not file name). Need to support file name.
+        metadata_file  : the fp to the file. ( Not file name). Need to support file name.
+
+        Returns
+        -------
+           returns the transaction hash and document hash.
+
+        '''
         global cookies
         if not self.authenticated():
             self.login()
@@ -98,9 +166,20 @@ class Notary(object):
             message = self.secure_message.get_message_from_secure_payload(payload)
             print message
             message=json.loads(message)
-            return message['transaction_hash']
+            return message
 
     def upload_file(self, path_to_file):
+        '''
+        uploads a file to server
+        Parameters
+        ----------
+        path_to_file : give a file pointer,i.e. file pointer. Need change code support file full path name.
+
+        Returns
+        -------
+         the http status from the server
+
+        '''
         global cookies
         if not self.authenticated():
             self.login()
@@ -119,6 +198,16 @@ class Notary(object):
         return response.status_code
 
     def notary_status(self, document_hash):
+        '''
+        This method returns the notary status
+        Parameters
+        ----------
+        document_hash : the document hash value.
+
+        Returns
+        -------
+             status value.
+        '''
         global cookies
         if not self.authenticated():
             self.login()
