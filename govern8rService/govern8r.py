@@ -1,5 +1,6 @@
-from flask import request, Response, json, g, redirect, url_for
+from flask import request, Response, json, g, redirect
 from functools import wraps
+from urlparse import urljoin
 
 from flask_api import FlaskAPI
 from wallet import NotaryWallet
@@ -326,11 +327,8 @@ def upload_document(address, document_hash):
     """
     authenticated_response = rotate_authentication_token()
 
-    if g.notarization_data is None:
-        authenticated_response.status_code = 404
-    else:
-        f = request.files['document_content']
-        notarization_service.store_file(g.notarization_data, f)
+    f = request.files['document_content']
+    notarization_service.store_file(g.notarization_data, f)
     return authenticated_response
 
 
@@ -354,7 +352,10 @@ def download_document(address, document_hash):
         unauthenticated_response.status_code = 403
         return unauthenticated_response
 
-    return authenticated_response
+    bucket_url = 'https://s3.amazonaws.com/govern8r-notarized-documents/'+address+'/'+document_hash
+    print(bucket_url)
+
+    return redirect(bucket_url)
 
 
 @app.route('/govern8r/api/v1/account/<address>/document/<document_hash>/status', methods=['GET'])
