@@ -1,6 +1,8 @@
 from hashlib import md5
 from Crypto.Cipher import AES
 from Crypto import Random
+import uuid
+import bitcoin_asymmetric_encrypt
 
 def derive_key_and_iv(password, salt, key_length, iv_length):
     d = d_i = ''
@@ -9,16 +11,24 @@ def derive_key_and_iv(password, salt, key_length, iv_length):
         d += d_i
     return d[:key_length], d[key_length:key_length+iv_length]
 
-def encrypt_file(in_file_name, out_file_name, password, key_length=32):
+def encrypt_file(in_file_name, out_file_name, public_key, key_length=32):
+    password = str(uuid.uuid4())
+    print password
+    encrypted_password = bitcoin_asymmetric_encrypt.encrypt(public_key,password)
+    print encrypted_password
     with open(in_file_name, 'rb') as in_file, open(out_file_name, 'wb') as out_file:
-        encrypt(in_file, out_file, password)
+        encrypt(in_file, out_file, password,encrypted_password)
 
-def encrypt(in_file, out_file, password, key_length=32):
+def encrypt(in_file, out_file, password, encrypted_password, key_length=32):
     bs = AES.block_size
     salt = Random.new().read(bs - len('Salted__'))
     key, iv = derive_key_and_iv(password, salt, key_length, bs)
     cipher = AES.new(key, AES.MODE_CBC, iv)
     out_file.write('Salted__' + salt)
+    epass_length = str(len(encrypted_password))
+    print epass_length
+    out_file.write('Length__'+epass_length)
+    out_file.write('Key__'+encrypted_password)
     finished = False
     while not finished:
         chunk = in_file.read(1024 * bs)
@@ -29,14 +39,21 @@ def encrypt(in_file, out_file, password, key_length=32):
         out_file.write(cipher.encrypt(chunk))
 
 
-def decrypt_file(in_file_name, out_file_name, password, key_length=32):
+def decrypt_file(in_file_name, out_file_name, private_key, key_length=32):
     with open(in_file_name, 'rb') as in_file, open(out_file_name, 'wb') as out_file:
-        decrypt(in_file, out_file, password)
+        decrypt(in_file, out_file, private_key)
 
 
-def decrypt(in_file, out_file, password, key_length=32):
+def decrypt(in_file, out_file, private_key, key_length=32):
     bs = AES.block_size
     salt = in_file.read(bs)[len('Salted__'):]
+    pass_key_length = int(in_file.read(11)[len('Length__'):])
+    print pass_key_length
+    encrypted_password = in_file.read(5+pass_key_length)[len('Key__'):]
+    print encrypted_password
+    password = bitcoin_asymmetric_encrypt.decrypt(private_key,encrypted_password)
+    print password
+
     key, iv = derive_key_and_iv(password, salt, key_length, bs)
     cipher = AES.new(key, AES.MODE_CBC, iv)
     next_chunk = ''
