@@ -56,10 +56,7 @@ class Notary(object):
         print response.content
         payload = response.content
         print payload
-        if config.get_test_mode():
-            return payload
-        else:
-            return response.status_code
+        return response.status_code
 
     def login(self):
         '''
