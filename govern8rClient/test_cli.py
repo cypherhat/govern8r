@@ -18,16 +18,16 @@ elif result is None:
     print "Registration not successful"
 else:
     print "calling confirm"
-    confirm_result = notary.mainMethod(['confirm','-confirm_url', result,'-password', 'test123'])
+    confirm_result = notary.main_method(['confirm','-confirm_url', result,'-password', 'test123'])
     print confirm_result
     # if 200 means go ahead and notarize a file.
     if confirm_result == 200 :
-        login_result = notary.mainMethod(['login', '-password', 'test123'])
+        login_result = notary.main_method(['login', '-password', 'test123'])
         if login_result :
-            print notary.mainMethod(['uploadfile', '-file', 'testnotarizecontent.txt','-password', 'test123'])
-            transaction_id = notary.mainMethod(['notarize', '-file', 'testnotarizecontent.txt','-metadata','testmetadata.txt','-password', 'test123'])
+            print notary.main_method(['uploadfile', '-file', 'testnotarizecontent.txt','-password', 'test123'])
+            transaction_id = notary.main_method(['notarize', '-file', 'testnotarizecontent.txt','-metadata','testmetadata.txt','-password', 'test123'])
             if transaction_id is not None :
-                 transaction_status = notary.mainMethod(['notarystatus', "-transaction_id",transaction_id, '-password', 'test123'])
+                 transaction_status = notary.main_method(['notarystatus', "-transaction_id",transaction_id, '-password', 'test123'])
                  print transaction_status
             else :
                 print "There is not transaction id returned"
@@ -38,4 +38,4 @@ else:
 
 
 
-notary.mainMethod([ '-h' ])
+notary.main_method([ '-h' ])
