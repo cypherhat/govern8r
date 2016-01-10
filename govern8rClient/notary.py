@@ -48,11 +48,18 @@ class Notary(object):
         -------
               the http response status code.
         '''
+        #prepare the input.
         address = str(self.wallet.get_bitcoin_address())
         message = {'public_key': self.wallet.get_public_key_hex(), 'email': email}
         str_message = json.dumps(message)
         payload = self.secure_message.create_secure_payload(self.other_party_public_key_hex, str_message)
+
+        # send to server
         response = requests.put(self.notary_url + '/api/v1/account/' + address, data=payload)
+
+        #process the response
+        if response.status_code != 200:
+                 return None
         print response.content
         payload = response.content
         print payload
@@ -70,13 +77,26 @@ class Notary(object):
 
         '''
         global cookies
+        #call the server to get the challenge URL.
+        self.govenr8r_token = 'UNAUTHENTICATED'
         address = str(self.wallet.get_bitcoin_address())
         response = requests.get(self.notary_url + '/api/v1/challenge/' + address)
+
+        #process the response
+        if response.status_code != 200:
+                 return False
         payload = json.loads(response.content)
         if self.secure_message.verify_secure_payload(self.other_party_address, payload):
             message = self.secure_message.get_message_from_secure_payload(payload)
+            #create another payload with the signed challenge message.
             payload = self.secure_message.create_secure_payload(self.other_party_public_key_hex, message)
+
+            #call the server with seucre payload
             response = requests.put(self.notary_url + '/api/v1/challenge/' + address, data=payload)
+
+            #process the response.
+            if response.status_code != 200:
+                 return False
             cookies = requests.utils.dict_from_cookiejar(response.cookies)
             self.govenr8r_token = cookies['govern8r_token']
             return True
@@ -135,19 +155,30 @@ class Notary(object):
         '''
         global cookies
         address = str(self.wallet.get_bitcoin_address())
-
         meta_data = json.loads(metadata_file.read())
+
+        # hash the file and generate the document hash
         document_hash = hashfile.hash_file_fp(path_to_file)
         meta_data['document_hash'] = document_hash
         print json.dumps(meta_data)
+        #create a secure payload
         notarization_payload = self.secure_message.create_secure_payload(self.other_party_public_key_hex,
                                                                          json.dumps(meta_data))
 
+        # make the rest call.
         response = requests.put(self.notary_url + '/api/v1/account/' + address + '/notarization/' + document_hash,
                                 cookies=cookies, data=notarization_payload)
-        payload = json.loads(response.content)
+
+        #process the response
+        if response.status_code != 200:
+                 return None
+        #store the rotated cookie.
+
         cookies = requests.utils.dict_from_cookiejar(response.cookies)
         self.govenr8r_token = cookies['govern8r_token']
+
+        #process the returned payload
+        payload = json.loads(response.content)
         print "payload"
         print payload
         if self.secure_message.verify_secure_payload(self.other_party_address, payload):
@@ -173,8 +204,14 @@ class Notary(object):
         files = {'files': path_to_file}
         print repr(path_to_file.name)
         print repr(self.notary_url + '/api/v1/upload/' + address + '/name/' + path_to_file.name)
+
+        #call the server
         response = requests.post(self.notary_url + '/api/v1/upload/' + address + '/name/' + path_to_file.name,
                                  cookies=cookies, files=files)
+
+        #process the response
+        if response.status_code != 200:
+                 return None
         # cookies = requests.utils.dict_from_cookiejar(response.cookies)
         # self.govenr8r_token = cookies['govern8r_token']
         print response.status_code
@@ -193,19 +230,18 @@ class Notary(object):
         '''
         global cookies
         address = str(self.wallet.get_bitcoin_address())
-
         response = requests.get(
             self.notary_url + '/api/v1/account/' + address + '/notarization/' + document_hash + '/status',
             cookies=cookies)
-        if response.status_code == 404:
+        if response.status_code != 200:
             print ('No notarization!')
             return None
         elif response.content is not None:
-            str_content = response.content
             payload = json.loads(response.content)
             if self.secure_message.verify_secure_payload(self.other_party_address, payload):
                 message = self.secure_message.get_message_from_secure_payload(payload)
                 print(message)
+                return message
 
 
 def login_if_needed(notary,command):
