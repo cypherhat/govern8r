@@ -38,7 +38,7 @@ print("Status: %s" % response.status_code)
 
 #Upload using PUT
 
-file_name = '/Users/tssbi08/govern8r/IP/Wake_Up.m4a'
+file_name = '/Users/tssbi08/govern8r/IP/README.txt'
 document_hash = hashfile.hash_file(file_name)
 response = requests.get('http://127.0.0.1:5000/govern8r/api/v1/account/' + address + '/document/' + document_hash + '/status', cookies=cookies)
 if response.content is not None:
