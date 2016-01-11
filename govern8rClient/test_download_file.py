@@ -35,7 +35,10 @@ cookies = requests.utils.dict_from_cookiejar(response.cookies)
 govern8r_token = cookies['govern8r_token']
 print("Token from authentication: %s" % govern8r_token)
 print("Status: %s" % response.status_code)
-document_hash = hashfile.hash_file('/Users/tssbi08/govern8r/IP/README.txt')
+
+file_name = "/Users/raju/Downloads/jdk-8u65-macosx-x64.dmg"
+encrypted_file = "/Users/raju/Downloads/encrypt_jdk-8u65-macosx-x64.dmg"
+document_hash = hashfile.hash_file(file_name)
 
 url = 'http://127.0.0.1:5000/govern8r/api/v1/account/' + address + '/document/' + document_hash
 local_filename = url.split('/')[-1]
