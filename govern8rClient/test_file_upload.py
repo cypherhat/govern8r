@@ -39,10 +39,14 @@ print("Status: %s" % response.status_code)
 
 #Upload using PUT
 
-file_name = '/Users/tssbi08/govern8r/IP/README.txt'
-encrypted_file = '/Users/tssbi08/govern8r/IP/Encrypted_README.txt'
+file_name = "/Users/raju/Downloads/jdk-8u65-macosx-x64.dmg"
+encrypted_file = "/Users/raju/Downloads/encrypt_jdk-8u65-macosx-x64.dmg"
+#file_name = '/Users/tssbi08/govern8r/IP/README.txt'
+#encrypted_file = '/Users/tssbi08/govern8r/IP/Encrypted_README.txt'
 
-file_stream_encrypt.encrypt_file(file_name,encrypted_file,"test123")
+public_key = CPubKey(wallet.get_public_key_hex().decode("hex"))
+
+file_stream_encrypt.encrypt_file(file_name,encrypted_file,public_key)
 
 document_hash = hashfile.hash_file(file_name)
 response = requests.get('http://127.0.0.1:5000/govern8r/api/v1/account/' + address + '/document/' + document_hash + '/status', cookies=cookies)

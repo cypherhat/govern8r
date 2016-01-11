@@ -50,7 +50,7 @@ metadata = {
 }
 
 
-document_hash = hashfile.hash_file('/Users/tssbi08/govern8r/IP/README.txt')
+document_hash = hashfile.hash_file('/Users/raju/Downloads/jdk-8u65-macosx-x64.dmg')
 metadata['document_hash'] = document_hash
 
 response = requests.get('http://127.0.0.1:5000/govern8r/api/v1/account/' + address + '/notarization/' + document_hash + '/status', cookies=cookies)
