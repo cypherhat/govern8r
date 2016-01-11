@@ -346,7 +346,6 @@ def download_document(address, document_hash):
     document_hash : string
        The hash of the document.
     """
-    authenticated_response = rotate_authentication_token()
 
     if g.notarization_data['address'] != g.account_data['address']:
         unauthenticated_response.status_code = 403
