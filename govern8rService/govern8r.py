@@ -25,7 +25,10 @@ unauthenticated_response.set_cookie('govern8r_token', 'UNAUTHENTICATED')
 
 def get_bad_response(status_code):
     bad_response = Response(json.dumps({}), status=status_code, mimetype='application/json')
-    govern8r_token = request.cookies.get('govern8r_token')
+    if 'govern8r_token' in request.cookies:
+        govern8r_token = request.cookies.get('govern8r_token')
+    else:
+        govern8r_token = 'UNAUTHENTICATED'
     bad_response.set_cookie('govern8r_token', govern8r_token)
     return bad_response
 
@@ -66,8 +69,11 @@ def authenticated(address):
     if g.account_data is None or g.account_data['nonce'] is None:
         return False
 
-    govern8r_token = request.cookies.get('govern8r_token')
-    if g.account_data is None or g.account_data['nonce'] is None or govern8r_token is None:
+    if 'govern8r_token' in request.cookies:
+        govern8r_token = request.cookies.get('govern8r_token')
+    else:
+        govern8r_token = 'UNAUTHENTICATED'
+    if g.account_data is None or g.account_data['nonce'] is None or govern8r_token == 'UNAUTHENTICATED':
         return False
     return validate_token(g.account_data['nonce'], govern8r_token)
 
@@ -346,7 +352,6 @@ def download_document(address, document_hash):
     document_hash : string
        The hash of the document.
     """
-    authenticated_response = rotate_authentication_token()
 
     if g.notarization_data['address'] != g.account_data['address']:
         unauthenticated_response.status_code = 403
