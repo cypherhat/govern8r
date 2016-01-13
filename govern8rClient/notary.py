@@ -10,6 +10,7 @@ from bitcoinlib.wallet import P2PKHBitcoinAddress
 from configuration import NotaryConfiguration
 
 config = NotaryConfiguration()
+ssl_verify_mode = config.get_ssl_verify_mode()
 notary  = None
 
 
@@ -28,7 +29,7 @@ class Notary(object):
         self.notary_url = config.get_server_url()
         self.wallet = NotaryWallet(password)
         self.secure_message = SecureMessage(self.wallet)
-        response = requests.get(self.notary_url + '/api/v1/pubkey')
+        response = requests.get(self.notary_url + '/api/v1/pubkey',verify=ssl_verify_mode)
         data = response.json()
         self.other_party_public_key_hex = data['public_key']
         other_party_public_key_decoded = self.other_party_public_key_hex.decode("hex")
@@ -55,7 +56,7 @@ class Notary(object):
         payload = self.secure_message.create_secure_payload(self.other_party_public_key_hex, str_message)
 
         # send to server
-        response = requests.put(self.notary_url + '/api/v1/account/' + address, data=payload)
+        response = requests.put(self.notary_url + '/api/v1/account/' + address, data=payload,verify=ssl_verify_mode)
 
         #process the response
         if response.status_code != 200:
@@ -107,7 +108,7 @@ class Notary(object):
         #call the server to get the challenge URL.
         self.govenr8r_token = 'UNAUTHENTICATED'
         address = str(self.wallet.get_bitcoin_address())
-        response = requests.get(self.notary_url + '/api/v1/challenge/' + address)
+        response = requests.get(self.notary_url + '/api/v1/challenge/' + address,verify=ssl_verify_mode)
 
         #process the response
         if response.status_code != 200:
@@ -119,7 +120,7 @@ class Notary(object):
             payload = self.secure_message.create_secure_payload(self.other_party_public_key_hex, message)
 
             #call the server with secure payload
-            response = requests.put(self.notary_url + '/api/v1/challenge/' + address, data=payload)
+            response = requests.put(self.notary_url + '/api/v1/challenge/' + address, data=payload,verify=ssl_verify_mode)
 
             #process the response.
             if response.status_code != 200:
@@ -154,7 +155,7 @@ class Notary(object):
         -------
 
         '''
-        response = requests.get(confirmation_url)
+        response = requests.get(confirmation_url,verify=ssl_verify_mode)
         return response.status_code
 
     def authenticated(self):
@@ -192,7 +193,7 @@ class Notary(object):
 
         # make the rest call.
         response = requests.put(self.notary_url + '/api/v1/account/' + address + '/notarization/' + document_hash,
-                                cookies=self.cookies, data=notarization_payload)
+                                cookies=self.cookies, data=notarization_payload,verify=ssl_verify_mode)
 
         #process the response
         if response.status_code != 200:
@@ -229,7 +230,7 @@ class Notary(object):
 
         #call the server
         response = requests.post(self.notary_url + '/api/v1/upload/' + address + '/name/' + path_to_file.name,
-                                 cookies=self.cookies, files=files)
+                                 cookies=self.cookies, files=files,verify=ssl_verify_mode)
 
         self.rotate_the_cookie(response)
         #process the response
@@ -255,7 +256,7 @@ class Notary(object):
         address = str(self.wallet.get_bitcoin_address())
         response = requests.get(
             self.notary_url + '/api/v1/account/' + address + '/notarization/' + document_hash + '/status',
-            cookies=self.cookies)
+            cookies=self.cookies,verify=ssl_verify_mode)
 
         self.rotate_the_cookie(response)
         if response.status_code != 200:

@@ -55,6 +55,11 @@ class NotaryConfiguration(object):
             return self.config.getboolean('DEFAULT', 'test_mode')
         else:
             raise ValueError('Value does not exist!')
+    def get_ssl_verify_mode(self):
+        if self.config.has_option('DEFAULT', 'verify_ssl'):
+            return self.config.getboolean('DEFAULT', 'verify_ssl')
+        else:
+            raise ValueError('Value does not exist!')
 
     def get_uploads_directory(self):
         if self.config.has_option('DEFAULT', 'uploads_directory'):
