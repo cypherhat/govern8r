@@ -141,6 +141,11 @@ def security_required(f):
     return decorated_function
 
 
+@app.route("/", methods=['GET'])
+def hello_server():
+    return {}
+
+
 @app.route("/govern8r/api/v1/pubkey", methods=['GET'])
 def pubkey():
     """
