@@ -19,7 +19,7 @@ print login_result
 
 #Confirm without registering.
 print "Confirm without registering"
-confirm_result = notary.mainMethod(['confirm','-confirm_url', "http://127.0.0.1:5000/govern8r/api/v1/account/randomaddress/randomchallenge",'-password', 'test123'])
+confirm_result = notary.mainMethod(['confirm','-confirm_url', "https://127.0.0.1:5000/govern8r/api/v1/account/randomaddress/randomchallenge",'-password', 'test123'])
 print confirm_result
 
 #Notarize without registering.
