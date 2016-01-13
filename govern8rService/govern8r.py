@@ -1,6 +1,5 @@
 from flask import request, Response, json, g, redirect
 from functools import wraps
-from urlparse import urljoin
 
 from flask_api import FlaskAPI
 from wallet import NotaryWallet
@@ -227,13 +226,10 @@ def put_account(address):
 
     good_response = Response(json.dumps({}), status=200, mimetype='application/json')
 
-    result = account_service.create_account(address, g.message)
-    if result is None:
+    response = account_service.create_account(address, g.message)
+    if response is None:
         return get_bad_response(500)
     else:
-        if config.get_test_mode():
-            good_response.data = result
-            print(result)
         return good_response
 
 
