@@ -73,6 +73,7 @@ We also have to install the aws client, to set up the credentials (contact me fo
 
 ```
 	sudo pip install awscli
+	sudo pip install awsebcli
 ```
 
 Before you can connect to the database, you need to configure the credentials using:
