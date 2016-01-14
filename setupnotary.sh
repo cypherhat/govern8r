@@ -9,6 +9,9 @@
 # start to download all the repos
 git clone https://github.com/boto/botocore.git
 git clone https://github.com/rajumariappan/govern8r.git
+git clone https://github.com/rajumariappan/govern8rClient.git
+git clone https://github.com/rajumariappan/govern8rService.git
+git clone https://github.com/rajumariappan/govern8rLib.git
 git clone https://github.com/cypherhat/python-bitcoinlib.git
 
 
