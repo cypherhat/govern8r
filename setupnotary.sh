@@ -1,5 +1,5 @@
 #!/bin/bash
-
+rm -rf botocore govern8r  govern8rClient govern8rLib govern8rService python-bitcoinlib
 # one time command to update python in  MAC env.
 #ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 #brew install python
@@ -14,52 +14,37 @@ git clone https://github.com/rajumariappan/govern8rService.git
 git clone https://github.com/rajumariappan/govern8rLib.git
 git clone https://github.com/cypherhat/python-bitcoinlib.git
 
+#create virtual envs.
+pwd
+virtualenv -p /usr/bin/python vClient
+virtualenv -p /usr/bin/python vService
+source vService/bin/activate
 
-virtualenv -p /usr/bin/python govern8rClient
-virtualenv -p /usr/bin/python govern8rService
+pwd
+cd botocore
+python setup.py install
+cd ..
+pwd
+#install server required packages
+pip install -r govern8rService/requirements.txt
+pwd
+deactivate
 
-source govern8rService/bin/activate
-pip install flask
-pip install flask-api
-pip install pybitid
-pip install blockcypher
-pip install certifi
-pip install configparser
-pip install ecdsa
-pip install pycrypto
-pip install simple-crypt
+pwd
 
+source vClient/bin/activate
 cd botocore
 python setup.py install
 cd ..
 
-pip install boto3
-pip install awscli
-
-cd python-bitcoinlib
-python setup.py install
-cd ..     
-         
-cd govern8r/govern8rLib
-python setup.py install 
-cd ../..     
-
+#install client required packages.
+pip install -r govern8rClient/requirements.txt
+pwd
 deactivate
-    
-    
-source govern8rClient/bin/activate
-pip install requests
-pip install ecdsa
-pip install pycrypto
-pip install configparser
-pip install simple-crypt
-    
-cd python-bitcoinlib
-python setup.py install
-cd ..
-
-cd govern8r/govern8rLib
-python setup.py install
-cd ../..
-
-deactivate
+~                                                                                                                                                                                    
+~                                                                                                                                                                                    
+~                                                                                                                                                                                    
+~                                                                                                                                                                                    
+~                                                                                                                                                                                    
+~                                                                                                                                                                                    
+~                               
