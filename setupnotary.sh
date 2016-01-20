@@ -19,47 +19,47 @@ virtualenv -p /usr/bin/python govern8rClient
 virtualenv -p /usr/bin/python govern8rService
 
 source govern8rService/bin/activate
-sudo pip install flask
-sudo pip install flask-api
-sudo pip install pybitid
-sudo pip install blockcypher
-sudo pip install certifi
-sudo pip install configparser
-sudo pip install ecdsa
-sudo pip install pycrypto
-sudo pip install simple-crypt
+pip install flask
+pip install flask-api
+pip install pybitid
+pip install blockcypher
+pip install certifi
+pip install configparser
+pip install ecdsa
+pip install pycrypto
+pip install simple-crypt
 
 cd botocore
-sudo python setup.py install
+python setup.py install
 cd ..
 
-sudo pip install boto3
-sudo pip install awscli
+pip install boto3
+pip install awscli
 
 cd python-bitcoinlib
-sudo python setup.py install
+python setup.py install
 cd ..     
          
 cd govern8r/govern8rLib
-sudo python setup.py install 
+python setup.py install 
 cd ../..     
 
 deactivate
     
     
 source govern8rClient/bin/activate
-sudo pip install requests
-sudo pip install ecdsa
-sudo pip install pycrypto
-sudo pip install configparser
-sudo pip install simple-crypt
+pip install requests
+pip install ecdsa
+pip install pycrypto
+pip install configparser
+pip install simple-crypt
     
 cd python-bitcoinlib
-sudo python setup.py install
+python setup.py install
 cd ..
 
 cd govern8r/govern8rLib
-sudo python setup.py install
+python setup.py install
 cd ../..
 
 deactivate
