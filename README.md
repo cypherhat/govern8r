@@ -59,6 +59,7 @@ This is the user policy: BeanstalkUserPolicy
 		        "sns:*",
 		        "cloudformation:*",
 		        "rds:*",
+		        "ses:*",
 		        "sqs:*",
 		        "dynamodb:*",
 		        "cloudhsm:*",
