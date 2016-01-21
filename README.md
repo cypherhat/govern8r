@@ -22,6 +22,7 @@ ALWAYS USE A NON-ROOT USER FOR ACCESSING AWS.
 There is some policy that needs to be created
 
 This is the user policy: BeanstalkUserPolicy
+```
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -78,8 +79,9 @@ This is the user policy: BeanstalkUserPolicy
         }
     ]
 }
-
+```
 This is the service policy: BeanstalkServicePolicy
+```
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -107,10 +109,10 @@ This is the service policy: BeanstalkServicePolicy
         }
     ]
 }
+```
 
 
-
-There are some roles that need to be created:
+There are some roles that need to be created. These *should* be created when elastic beanstalk is run the first time:
 
 ```
 aws-elasticbeanstalk-ec2-role
