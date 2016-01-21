@@ -45,6 +45,7 @@ This is the user policy: BeanstalkUserPolicy
                 "iam:CreateRole",
                 "iam:CreatePolicy",
                 "iam:ListRoles",
+                "iam:ListUsers",
                 "kinesis:*",
                 "kms:*",
                 "appstream:*",
@@ -150,7 +151,11 @@ We need to create an encryption key for the govern8r service. Use the following 
 alias/govern8r
 ```
 
-The ARN for this key will need to be placed in the govern8rService configuration file.
+The ARN for this key will need to be placed in the govern8rService configuration file. The following roll needs to have access to this key:
+
+```
+aws-elasticbeanstalk-ec2-role
+```
 
 
 
