@@ -15,9 +15,13 @@ virtualenv -p <path-to-python-2.7.11> govern8rLib
 
 ## Access
 
-ALWAYS USE A NON-ROOT USER FOR ACCESSING AWS.
+ALWAYS USE A NON-ROOT USER FOR ACCESSING AWS. 
 
 ## Elastic beanstalk
+
+As root user, do the following:
+
+Create a user (developer) for development. Download that user's access keys and get a password setup.
 
 There is some policy that needs to be created
 
@@ -80,7 +84,10 @@ This is the user policy: BeanstalkUserPolicy
     ]
 }
 ```
-This is the service policy: BeanstalkServicePolicy
+
+Attach BeanstalkUserPolicy to the user 'developer'.
+
+Login as 'developer'. Create the following policy - this is the service policy: BeanstalkServicePolicy
 ```
 {
     "Version": "2012-10-17",
@@ -111,15 +118,16 @@ This is the service policy: BeanstalkServicePolicy
 }
 ```
 
+Run elastic beanstalk in the govern8rService directory. This should create the following roles. 
 
-There are some roles that need to be created. These *should* be created when elastic beanstalk is run the first time:
+(These *should* be created when elastic beanstalk is run the first time):
 
 ```
 aws-elasticbeanstalk-ec2-role
 aws-elasticbeanstalk-service-role
 ```
 
-Attach to each of these roles the following policies:
+Attach to aws-elasticbeanstalk-ec2-role the following policies:
 
 ```
 AWSCloudHSMRole
@@ -129,6 +137,9 @@ AWSCloudHSMFullAccess
 AmazonDynamoDBFullAccess
 AmazonSESFullAccess
 ```
+
+Attach to aws-elasticbeanstalk-service-role the BeanstalkServicePolicy
+
 
 ## Encryption Keys
 
