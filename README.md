@@ -45,7 +45,6 @@ This is the user policy: BeanstalkUserPolicy
                 "iam:CreateRole",
                 "iam:CreatePolicy",
                 "iam:ListRoles",
-                "iam:ListUsers",
                 "kinesis:*",
                 "kms:*",
                 "appstream:*",
